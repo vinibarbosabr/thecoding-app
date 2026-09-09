@@ -1,182 +1,167 @@
 # thecoding.pool.near
 
-Clean, self-custodial interface to interact with the **`thecoding.pool.near`** NEAR validator.
+Self-custodial interface to stake, unstake, and withdraw NEAR on
+[`thecoding.pool.near`](https://nearblocks.io/address/thecoding.pool.near).
 
-Connect a NEAR wallet, sign one transaction per action. The app never holds keys and never stakes on anyone's behalf.
+You connect a NEAR wallet and sign each action yourself. This app never
+asks for a seed phrase, never stores a private key, and never submits a
+pool call from a server account.
 
-**v1.0.0:** connect → stake → unstake → withdraw.
+**v1:** connect → stake → unstake → withdraw.
 
-Not in v1: validator dashboard, NEAR Intents, EVM/Solana wallets, delegator points.
-
-Decisions: [`docs/ADR-01.md`](docs/ADR-01.md) · reasoning: [`STRATEGY.md`](STRATEGY.md)
+Architecture: [`docs/adr/ADR-01.md`](docs/adr/ADR-01.md).
 
 ---
 
-## How it works
+## Why this design
 
-NEAR pool methods must be signed by the **delegator**. If a server called `deposit_and_stake`, the stake would sit on the server account.
+On NEAR, `deposit_and_stake`, `unstake`, and `withdraw` credit the
+**predecessor** — the account that signed the transaction.
+
+If a backend sent those calls, the stake would sit on the backend
+account, not yours. That would be custody. This app does not do that.
 
 ```
-wallet ──sign──► FunctionCall ──► thecoding.pool.near
-                 ▲
-app builds the call, then reads state back via RPC view
+your wallet  ── signs ──►  FunctionCall  ──►  thecoding.pool.near
+                              ▲
+              this app only builds the call
+              and reads public view methods
 ```
 
-1. Connect with NEAR Connect (HOT, Meteor, MyNearWallet, Nightly, Intear, NEAR Mobile, …).
-2. App reads `get_account` and pool fee/total from a public RPC.
-3. You enter an amount (`.` or `,` accepted).
-4. Wallet signs. App does not broadcast through a backend.
-5. UI refetches until balances move.
+You can confirm the receiver and method in your wallet before you
+approve. After source lands, the builders live in `src/lib/pool.ts`.
 
 ---
 
 ## Pool contract
 
-Network: **mainnet**. Contract: **`thecoding.pool.near`**.
+- Network: **NEAR mainnet**
+- Contract: **`thecoding.pool.near`** (standard staking-pool)
+- Amounts in the UI: NEAR. Amounts on-chain: yoctoNEAR
+  (1 NEAR = 10²⁴ yoctoNEAR)
 
-### Writes (user signs, 50 TGas)
+### Writes (your wallet signs)
 
-| UI | Method | Attached deposit | Args |
+| Action | Method | Attached deposit | Arguments |
 | --- | --- | --- | --- |
-| Stake | `deposit_and_stake` | amount (yoctoNEAR) | `{}` |
-| Unstake amount | `unstake` | 0 | `{ "amount": "<yocto>" }` |
-| Unstake max | `unstake_all` | 0 | `{}` |
-| Withdraw amount | `withdraw` | 0 | `{ "amount": "<yocto>" }` |
-| Withdraw max | `withdraw_all` | 0 | `{}` |
+| Stake | `deposit_and_stake` | the stake amount | `{}` |
+| Unstake an amount | `unstake` | none | `{ "amount": "<yoctoNEAR>" }` |
+| Unstake all | `unstake_all` | none | `{}` |
+| Withdraw an amount | `withdraw` | none | `{ "amount": "<yoctoNEAR>" }` |
+| Withdraw all | `withdraw_all` | none | `{}` |
 
-Never attach deposit to unstake/withdraw. Never send amount `0`.
+Prepaid gas on each write: 50 TGas. Unstake and withdraw never attach
+NEAR. The app will not submit an amount of `0`.
 
 ### Reads (no signature)
 
-Primary: `get_account` (staked, unstaked, `unstaked_available_epoch_height` / withdrawability).
+Primary: `get_account` — staked balance, unstaked balance, and when
+unstaked funds become withdrawable.
 
-Also: `get_account_staked_balance`, `get_account_unstaked_balance`, `get_account_total_balance`, `is_account_unstaked_balance_available`, `get_reward_fee_fraction`, `get_total_staked_balance`, `get_owner_id`.
-
-Units: **1 NEAR = 10²⁴ yoctoNEAR**. The form talks NEAR; the call sends yocto.
+Also used: `is_account_unstaked_balance_available`,
+`get_account_staked_balance`, `get_account_unstaked_balance`,
+`get_account_total_balance`, `get_reward_fee_fraction`,
+`get_total_staked_balance`, `get_owner_id`.
 
 ### Unbonding
 
-Unlock is **not** `Date.now() + 48h`.
+Unstaking does not return NEAR immediately. The pool requires **4
+epochs** (about two days on current mainnet) before a withdraw is
+allowed.
 
-- Button state = `is_account_unstaked_balance_available` / account `can_withdraw`.
-- Copy = “4 epochs (about 2 days).”
-- Remaining epochs, when shown, come from `unstaked_available_epoch_height` vs current `epoch_height`.
+The Withdraw control follows the contract
+(`is_account_unstaked_balance_available` / account withdrawability),
+not a clock in the browser. Copy in the UI is an estimate; the
+contract is the gate.
 
 ---
 
-## Stack (v1, approved)
+## What you should see in the wallet popup
+
+- **Receiver:** `thecoding.pool.near`
+- **Method:** one of the five writes above
+- **Deposit:** only on `deposit_and_stake`, equal to the amount you typed
+- **No other receivers** in that transaction
+
+If a popup shows a different contract, a transfer to an unknown
+account, or a method that is not in the table, reject it.
+
+---
+
+## Safety rules the UI enforces
+
+- Amount must be greater than zero and within the available balance.
+- Stake leaves at least **0.05 NEAR** liquid on the wallet so later
+  transactions can pay gas.
+- Withdraw stays disabled until the pool reports the unstaked balance
+  as available.
+- Decimal input accepts both `1.5` and `1,5`.
+
+This software is MIT-licensed and provided as-is. Read
+[`LICENSE`](LICENSE). Staking has protocol risk (validator performance,
+unbonding delay, smart-contract risk of the official pool). This UI
+does not change those.
+
+---
+
+## Stack (v1)
 
 | Layer | Choice |
 | --- | --- |
-| App | Vite + React 19 + TypeScript (strict) |
-| Style | Tailwind CSS, dark-first |
-| Wallet | `near-connect-hooks` → `@hot-labs/near-connect` |
-| RPC | FastNEAR (`https://free.rpc.fastnear.com`), official fallback |
-| Package manager | pnpm |
-| Host | Vercel (static). Railway only when a worker/DB exists |
+| UI | Vite + React + TypeScript |
+| Wallet | [NEAR Connect](https://docs.near.org/tools/near-connect) (`@hot-labs/near-connect`, `near-connect-hooks`) |
+| Views | Public RPC (FastNEAR, with fallback) |
+| Host | Static site — no server in the staking path |
 | License | MIT |
 
-Rust is reserved for later workers / an operator CLI. Not the wallet UI.
-
-### Dependencies
-
-```text
-near-connect-hooks
-@hot-labs/near-connect
-near-api-js
-react
-react-dom
-```
-
-Dev: `vite`, `typescript`, `tailwindcss`, `vitest` (amount parse/validate only in v1).
-
 ---
 
-## Repo layout
+## Repository layout
 
 ```text
-thecoding-pool-app/
+README.md
+LICENSE
+docs/
 ├── README.md
-├── STRATEGY.md
-├── docs/
-│   ├── ADR-01.md
-│   └── roadmap.md
-├── package.json
-├── vite.config.ts
-├── tsconfig.json
-├── index.html
-├── .env.example
-└── src/
-    ├── main.tsx
-    ├── App.tsx
-    ├── index.css
-    ├── config.ts              # pool id, network, RPC, gas
-    ├── lib/
-    │   ├── near.ts            # yocto, commas, 0.05 NEAR gas buffer
-    │   └── pool.ts            # views + action builders
-    ├── hooks/
-    │   └── usePoolAccount.ts
-    └── components/
-        ├── WalletButton.tsx
-        ├── StakeForm.tsx
-        ├── UnstakeForm.tsx
-        ├── WithdrawForm.tsx
-        └── AccountSummary.tsx
+└── adr/
+    ├── README.md
+    └── ADR-01.md
+src/                          # v1 application (forthcoming)
+├── config.ts
+├── lib/near.ts
+├── lib/pool.ts
+├── hooks/usePoolAccount.ts
+└── components/…
 ```
 
-App boots on mainnet defaults with no env file. Overrides are optional `VITE_*` (see `.env.example` once scaffolded).
-
 ---
 
-## Safety
-
-- No keys, no seed phrases, no server-side predecessor.
-- Validate amount **before** opening the wallet: `> 0`, `≤` available, and stake leaves **≥ 0.05 NEAR** liquid for gas.
-- Withdraw stays disabled until the contract says the unstaked balance is available.
-- Public preview can be read-only via `VITE_ENABLE_WRITES=false`.
-- Repo is MIT so delegators can read the exact call they sign.
-
----
-
-## Scripts (once scaffolded)
+## Development
 
 ```bash
 pnpm install
-pnpm dev          # http://localhost:5173
-pnpm test         # parse / validate units
+pnpm dev      # http://localhost:5173
+pnpm test
 pnpm build
 ```
 
-First real write is a **0.1 NEAR** `deposit_and_stake` from an account Vini controls. Not CI. Not an agent.
+Mainnet is the default network. Optional `VITE_*` overrides will be
+documented in `.env.example` when the app is scaffolded.
 
 ---
 
-## Roadmap (not v1)
+## Out of scope for v1
 
-| After v1 | What |
-| --- | --- |
-| v1.1 | Pool snapshot in the UI (fee, total stake, owner) — views only |
-| v1.2 | Custom domain |
-| v2 | NEAR Intents (e.g. USDC on Base → stake here) |
-| v2+ | Delegator points, other-chain wallets |
+- A server that stakes, unstakes, or withdraws for you
+- Cross-chain wallets and NEAR Intents
+- Delegator points
+- A full validator-operations dashboard
 
-Intents is a new flow (quote → origin deposit → solve → stake). It is not a swapped wallet adapter. Do not abstract v1 for it.
-
----
-
-## Gates
-
-Approved 2026-08-27: Vercel, Vite+TS+React, NEAR Connect, this contract table.
-
-Still gated:
-
-1. Create the git remote and push.
-2. Create the Vercel project.
-3. First non-zero mainnet tx against `thecoding.pool.near`.
-4. Custom domain / DNS.
+Those may appear in later versions. They do not change v1 custody:
+your key still signs the pool call.
 
 ---
 
 ## License
 
-MIT
+[MIT](LICENSE)
