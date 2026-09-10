@@ -44,7 +44,8 @@ approve. After source lands, the builders live in `src/lib/pool.ts`.
 
 | Action | Method | Attached deposit | Arguments |
 | --- | --- | --- | --- |
-| Stake | `deposit_and_stake` | the stake amount | `{}` |
+| Stake (new funds) | `deposit_and_stake` | the stake amount | `{}` |
+| Restake (from unstaked bucket) | `stake` | none | `{ "amount": "<yoctoNEAR>" }` |
 | Unstake an amount | `unstake` | none | `{ "amount": "<yoctoNEAR>" }` |
 | Unstake all | `unstake_all` | none | `{}` |
 | Withdraw an amount | `withdraw` | none | `{ "amount": "<yoctoNEAR>" }` |
@@ -65,9 +66,8 @@ Also used: `is_account_unstaked_balance_available`,
 
 ### Unbonding
 
-Unstaking does not return NEAR immediately. The pool requires **4
-epochs** (about two days on current mainnet) before a withdraw is
-allowed.
+Unstaking does not return NEAR immediately. The pool requires **4 epochs
+(~7.5 hours each)** before a withdraw is allowed.
 
 The Withdraw control follows the contract
 (`is_account_unstaked_balance_available` / account withdrawability),
@@ -79,7 +79,7 @@ contract is the gate.
 ## What you should see in the wallet popup
 
 - **Receiver:** `thecoding.pool.near`
-- **Method:** one of the five writes above
+- **Method:** one of the six writes above
 - **Deposit:** only on `deposit_and_stake`, equal to the amount you typed
 - **No other receivers** in that transaction
 
@@ -139,10 +139,10 @@ src/                          # v1 application (forthcoming)
 ## Development
 
 ```bash
-pnpm install
-pnpm dev      # http://localhost:5173
-pnpm test
-pnpm build
+npm install
+npm run dev      # http://localhost:5173
+npm test
+npm run build
 ```
 
 Mainnet is the default network. Optional `VITE_*` overrides will be

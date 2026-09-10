@@ -35,7 +35,8 @@ become available.
 
   | Action | Method | Deposit | Args |
   | --- | --- | --- | --- |
-  | Stake | `deposit_and_stake` | stake amount (yoctoNEAR) | `{}` |
+  | Stake (new funds) | `deposit_and_stake` | stake amount (yoctoNEAR) | `{}` |
+  | Restake (from unstaked bucket) | `stake` | none | `{ "amount": "<yocto>" }` |
   | Unstake amount | `unstake` | none | `{ "amount": "<yocto>" }` |
   | Unstake all | `unstake_all` | none | `{}` |
   | Withdraw amount | `withdraw` | none | `{ "amount": "<yocto>" }` |
@@ -49,7 +50,7 @@ become available.
 
 ### 3. Unbonding
 
-- After `unstake`, funds are locked for **4 epochs** (about two days
+- After `unstake`, funds are locked for **4 epochs** (~7.5 hours each
   on current mainnet).
 - The Withdraw control is enabled only when the pool reports the
   unstaked balance as available.
