@@ -6,6 +6,7 @@ import { AmountForm } from "./components/AmountForm";
 import { TxToast } from "./components/TxToast";
 import { usePoolAccount, maxStakeNear } from "./hooks/usePoolAccount";
 import { useTx } from "./hooks/useTx";
+import { useTheme } from "./hooks/useTheme";
 import {
   stakeBuilder,
   restakeBuilder,
@@ -29,6 +30,7 @@ function Shell() {
   const connected = Boolean(wallet.signedAccountId);
   const position = usePoolAccount();
   const tx = useTx(position.refetch);
+  const { theme, toggle } = useTheme();
 
   const stakedNear = yoctoToNear(position.staked);
   const unstakedNear = yoctoToNear(position.unstaked);
@@ -42,11 +44,30 @@ function Shell() {
   const handleAll = (builder: () => any[]) => () => tx.sign(builder());
 
   return (
-    <div className="min-h-screen bg-neutral-100">
+    <div className="min-h-screen bg-neutral-100 dark:bg-[#042F2E]">
       <div className="mx-auto max-w-2xl px-4 py-8">
         <header className="mb-8">
-          <h1 className="text-2xl font-semibold text-neutral-900">Stake NEAR</h1>
-          <p className="mt-1 text-sm text-neutral-500">
+          <div className="flex items-start justify-between gap-4">
+            <img
+              src="/logo-light.png"
+              alt="thecoding.pool.near"
+              className="h-10 w-auto dark:hidden"
+            />
+            <img
+              src="/logo-dark.png"
+              alt="thecoding.pool.near"
+              className="hidden h-10 w-auto dark:block"
+            />
+            <button
+              type="button"
+              onClick={toggle}
+              aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              className="rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-700 transition hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:bg-neutral-800"
+            >
+              {theme === "dark" ? "☀️" : "🌙"}
+            </button>
+          </div>
+          <p className="mt-3 text-sm text-neutral-500">
             Self-custodial staking on{" "}
             <a
               href="https://nearblocks.io/address/thecoding.pool.near"
@@ -148,7 +169,7 @@ function Shell() {
           </section>
         )}
 
-        <footer className="mt-10 border-t border-neutral-200 pt-4 text-xs text-neutral-400">
+        <footer className="mt-10 border-t border-neutral-200 pt-4 text-xs text-neutral-400 dark:border-neutral-700">
           <p>
             This app builds the transaction; your wallet signs it. The receiver is always{" "}
             <span className="font-mono">thecoding.pool.near</span>. Reject any popup showing a
