@@ -62,28 +62,62 @@ serves. Four rules implement it.
 - RPC endpoints are public, hardcoded in `src/config.ts`, and
   allow-listed in the CSP.
 
-### 3. Content-Security-Policy as the custody backstop
+### 3. Scoped CSP — the honest backstop
 
 The UI's promise — receiver is always `thecoding.pool.near`, methods
 only from the six writes in ADR-01 — is enforced client-side before
-the wallet popup. CSP is the defense that makes an injected script's
-job hard:
+the wallet popup, and confirmed again inside the wallet before any
+signature. A script-src-based CSP was attempted (2026-09-11) and broke
+wallet connection outright; it is structurally incompatible with the
+wallet stack on a static host:
 
-- `script-src 'self'`, no `unsafe-inline`, no `unsafe-eval`;
-  `object-src 'none'`; `base-uri 'self'`; `form-action 'none'`.
-- `connect-src` limited to the RPC endpoints and manifest hosts;
-  `frame-src` limited to the wallet executor origins from the
-  hot-dao/near-selector manifest. Exfiltration and beacon targets are
-  not reachable.
+- NEAR Connect fetches wallet executor code at runtime from hosts in
+  its manifest (`raw.githubusercontent.com`, `wallet.intear.tech`,
+  `near-mobile-production.aws.peersyst.tech`, …) and boots it via
+  inline `<script>` blocks inside `srcdoc` sandbox iframes.
+  `srcdoc` iframes inherit the parent page's policy, so any
+  `script-src 'self'` (and `default-src`) blocks the wallets' own
+  boot scripts — every sandboxed wallet silently hangs.
+- The library's `cspNonce` escape hatch requires a per-request,
+  server-generated nonce. That means edge middleware — a function,
+  which rule 2 forbids. A static nonce is not a control: injected
+  script reads it from the connector config.
+
+The enforced policy is therefore scoped to vectors that do not
+conflict with the wallet sandbox:
+
+- `object-src 'none'`; `base-uri 'self'`; `form-action 'none'` —
+  no plugin/object vectors, no base-tag hijacks, no form-action
+  exfiltration.
+- `img-src 'self' data: https:` — remote icons come from manifest
+  hosts that change with the manifest; an open img-src is acceptable
+  (images are passive; no script, no credentialed reads).
+- `worker-src 'self' blob:`; `frame-ancestors *`.
+- Deliberately absent: `script-src`/`default-src` (breaks wallets),
+  `connect-src`/`frame-src` (executor hosts evolve with the manifest;
+  enumerating them breaks wallets on every manifest update — the
+  connector is designed to add wallets without app changes).
+
+Custody therefore does not rest on script gating. It rests on:
+
+1. **Wallet-side confirmation** — the wallet popup shows receiver,
+   method, and deposit; the user rejects anything foreign (ADR-01).
+2. **Bundle and dependency integrity** — no unused key-capable deps,
+   `npm audit`-gated upgrades (rule 4), builds reproducible from
+   reviewed source.
+3. **The scoped CSP above** — closes the cheap vectors without
+   touching the wallet sandbox.
+4. **No secrets in the boundary** — the bundle holds no keys or
+   credentials (rules 1–2), so an injected script has nothing to
+   steal; its realistic move (swapping a receiver) is caught by (1).
 - **Embedding must not be locked down:** `frame-ancestors *` /
   `X-Frame-Options: ALLOWALL`. In-app browsers and wallet wallets
   (HOT inside Telegram, mobile wallets) embed the site; a restrictive
   `frame-ancestors` breaks wallet sign-in — the exact flow this app
   exists for. Do not "harden" this away.
-- `style-src 'unsafe-inline'` is accepted (Tailwind runtime class
-  toggling); scripts are where the custody risk lives.
-- Any CSP relaxation (new `connect-src`, inline script) needs a
-  matching justification in the PR that adds it.
+- Any future attempt to reintroduce script gating (nonce via
+  middleware, allow-listing connector internals) needs a new ADR and
+  a wallet-connect regression test against the live selector first.
 
 ### 4. Dependencies on the signing path
 
@@ -120,8 +154,8 @@ job hard:
 
 - Builds on [ADR-01](./ADR-01.md) (self-custodial v1 UI); does not
   supersede it.
-- vercel.json (CSP + HSTS + X-Content-Type-Options +
-  Referrer-Policy + Permissions-Policy)
+- vercel.json (scoped CSP — wallet-sandbox compatible; HSTS +
+  X-Content-Type-Options + Referrer-Policy + Permissions-Policy)
 - Advisories closed by the 2026-09-11 hardening pass:
   [GHSA-xq7p-g2vc-g82p](https://github.com/advisories/GHSA-xq7p-g2vc-g82p)
   (base-x/bs58, via unused `near-api-js@3`),
