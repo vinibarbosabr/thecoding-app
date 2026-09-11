@@ -8,6 +8,7 @@ Dated records of decisions that affect how this app talks to
 | ADR | Status | Decision |
 | --- | --- | --- |
 | [ADR-01](./ADR-01.md) | **Accepted** | Self-custodial v1 UI: user-signed pool calls, no staking backend, NEAR Connect, contract-gated unbonding |
+| [ADR-02](./ADR-02.md) | **Accepted** | Security posture: no key material in the app's trust boundary — no browser-held keys, static-only hosting, CSP backstop, minimal signing-path deps |
 
 ## Adding an ADR
 
