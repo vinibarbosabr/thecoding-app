@@ -1,11 +1,11 @@
-# thecoding.pool.near
-
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="public/logo-dark.png">
     <img src="public/logo-light.png" alt="thecoding.pool.near" width="320">
   </picture>
 </p>
+
+# thecoding.pool.near
 
 Self-custodial interface to stake, unstake, and withdraw NEAR on
 [`thecoding.pool.near`](https://nearblocks.io/address/thecoding.pool.near).
