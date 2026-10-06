@@ -1,4 +1,5 @@
 internal/
+tmp/
 node_modules/
 dist/
 *.tsbuildinfo
