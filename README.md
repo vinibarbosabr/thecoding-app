@@ -1,5 +1,12 @@
 # thecoding.pool.near
 
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="public/logo-dark.png">
+    <img src="public/logo-light.png" alt="thecoding.pool.near" width="320">
+  </picture>
+</p>
+
 Self-custodial interface to stake, unstake, and withdraw NEAR on
 [`thecoding.pool.near`](https://nearblocks.io/address/thecoding.pool.near).
 
@@ -8,10 +15,10 @@ asks for a seed phrase, never stores a private key, and never submits a
 pool call from a server account.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Website](https://img.shields.io/website?url=https%3A%2F%2Fthecoding.dev)](https://thecoding.dev)
+[![Website](https://img.shields.io/website?url=https%3A%2F%2Fapp.thecoding.dev)](https://app.thecoding.dev)
 [![Node](https://img.shields.io/badge/node-%3E%3D22.12-green)](package.json)
 
-**Use it:** [thecoding.dev](https://thecoding.dev) — no install, connect
+**Use it:** [app.thecoding.dev](https://app.thecoding.dev) — no install, connect
 a wallet, stake.
 
 **v1:** connect → stake → unstake → withdraw.
@@ -58,7 +65,7 @@ approve. The builders live in [`src/lib/pool.ts`](src/lib/pool.ts).
 ## Quick start
 
 **Use hosted** (mainnet, real funds): open
-[thecoding.dev](https://thecoding.dev), connect a NEAR wallet, stake.
+[app.thecoding.dev](https://app.thecoding.dev), connect a NEAR wallet, stake.
 
 **Run from source:**
 
