@@ -7,13 +7,18 @@ You connect a NEAR wallet and sign each action yourself. This app never
 asks for a seed phrase, never stores a private key, and never submits a
 pool call from a server account.
 
-**v1:** connect → stake → unstake → withdraw.
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Website](https://img.shields.io/website?url=https%3A%2F%2Fthecoding.dev)](https://thecoding.dev)
+[![Node](https://img.shields.io/badge/node-%3E%3D22.12-green)](package.json)
 
-Architecture: [`docs/adr/ADR-01.md`](docs/adr/ADR-01.md).
+**Use it:** [thecoding.dev](https://thecoding.dev) — no install, connect
+a wallet, stake.
+
+**v1:** connect → stake → unstake → withdraw.
 
 ---
 
-## Why this design
+## How custody works
 
 On NEAR, `deposit_and_stake`, `unstake`, and `withdraw` credit the
 **predecessor** — the account that signed the transaction.
@@ -23,13 +28,52 @@ account, not yours. That would be custody. This app does not do that.
 
 ```
 your wallet  ── signs ──►  FunctionCall  ──►  thecoding.pool.near
-                              ▲
-              this app only builds the call
-              and reads public view methods
+                               ▲
+               this app only builds the call
+               and reads public view methods
 ```
 
 You can confirm the receiver and method in your wallet before you
-approve. After source lands, the builders live in `src/lib/pool.ts`.
+approve. The builders live in [`src/lib/pool.ts`](src/lib/pool.ts).
+
+---
+
+## Features
+
+- **Six pool writes**, all signed by your wallet: stake, restake,
+  unstake, unstake-all, withdraw, withdraw-all.
+- **Position view**: staked, unstaking, and liquid balances plus the
+  pool fee and total pool stake, read live from the contract.
+- **Contract-gated withdrawals**: the Withdraw control follows the
+  pool's own withdrawability report, not a clock in the browser.
+- **Wallet popup as the final gate**: receiver, method, and deposit
+  are visible in your wallet before every signature.
+- **Human-friendly amounts**: accepts `1.5` and `1,5` as decimal
+  input; every transaction links to
+  [NearBlocks](https://nearblocks.io) for confirmation.
+- **Light and dark mode**, no tracking, static site.
+
+---
+
+## Quick start
+
+**Use hosted** (mainnet, real funds): open
+[thecoding.dev](https://thecoding.dev), connect a NEAR wallet, stake.
+
+**Run from source:**
+
+```bash
+npm install
+npm run dev      # http://localhost:5173
+npm test
+npm run build
+```
+
+Requires Node 22.12 or newer. No environment variables are needed:
+RPC endpoints are hardcoded in [`src/config.ts`](src/config.ts)
+(FastNEAR first, official mainnet RPC as fallback), and no `VITE_*`
+values may enter the bundle (see
+[ADR-02](docs/adr/ADR-02.md)).
 
 ---
 
@@ -60,9 +104,7 @@ Primary: `get_account` — staked balance, unstaked balance, and when
 unstaked funds become withdrawable.
 
 Also used: `is_account_unstaked_balance_available`,
-`get_account_staked_balance`, `get_account_unstaked_balance`,
-`get_account_total_balance`, `get_reward_fee_fraction`,
-`get_total_staked_balance`, `get_owner_id`.
+`get_reward_fee_fraction`, `get_total_staked_balance`.
 
 ### Unbonding
 
@@ -104,14 +146,27 @@ does not change those.
 
 ---
 
-## Stack (v1)
+## Security posture
+
+Detailed in [ADR-02](docs/adr/ADR-02.md); in short:
+
+- Key material never enters the app's trust boundary: no browser-held
+  keys, no seed phrases, no credentials in web storage.
+- Static-only hosting. No serverless functions in any path, read or
+  write.
+- A scoped CSP (wallet-sandbox compatible) closes plugin, base-tag,
+  and form-action vectors. The wallet popup remains the final gate.
+
+---
+
+## Stack
 
 | Layer | Choice |
 | --- | --- |
-| UI | Vite + React + TypeScript |
+| UI | Vite + React + TypeScript + Tailwind CSS |
 | Wallet | [NEAR Connect](https://docs.near.org/tools/near-connect) (`@hot-labs/near-connect`, `near-connect-hooks`) |
-| Views | Public RPC (FastNEAR, with fallback) |
-| Host | Static site — no server in the staking path |
+| Tests | Vitest (32 tests across `src/lib` and `src/hooks`) |
+| Host | Static site (Vercel) — no server in the staking path |
 | License | MIT |
 
 ---
@@ -119,34 +174,42 @@ does not change those.
 ## Repository layout
 
 ```text
-README.md
-LICENSE
+src/
+├── App.tsx                  # NearProvider (mainnet) + page wiring
+├── config.ts                # pool id, RPC endpoints, gas, buffers
+├── lib/
+│   ├── near.ts              # NEAR ↔ yoctoNEAR, decimal parsing, formatting
+│   ├── pool.ts              # the six write builders + contract reads
+│   └── *.test.ts            # vitest, colocated
+├── hooks/
+│   ├── usePoolAccount.ts    # balances, fee, max stake (0.05 NEAR buffer)
+│   ├── useTx.ts             # sign + send, pending/error/success states
+│   ├── useTheme.ts          # light/dark toggle
+│   └── *.test.ts
+└── components/
+    ├── ConnectBar.tsx       # connect / disconnect, signed-in account
+    ├── PositionCard.tsx     # staked / unstaking / liquid buckets
+    ├── AmountForm.tsx       # amount input, Max, validation
+    └── TxToast.tsx          # toast with NearBlocks transaction link
 docs/
-├── README.md
-└── adr/
-    ├── README.md
-    └── ADR-01.md
-src/                          # v1 application (forthcoming)
-├── config.ts
-├── lib/near.ts
-├── lib/pool.ts
-├── hooks/usePoolAccount.ts
-└── components/…
+└── adr/                     # architecture decision records
 ```
 
 ---
 
-## Development
+## Documentation
 
-```bash
-npm install
-npm run dev      # http://localhost:5173
-npm test
-npm run build
-```
+- [`docs/`](docs/README.md) — engineering record and decisions
+- [ADR-01](docs/adr/ADR-01.md) — self-custodial v1 design
+- [ADR-02](docs/adr/ADR-02.md) — security posture
 
-Mainnet is the default network. Optional `VITE_*` overrides will be
-documented in `.env.example` when the app is scaffolded.
+---
+
+## Contributing
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md). Changes that touch custody,
+contract calls, or networks require a new
+[ADR](docs/adr/README.md) in the same change set.
 
 ---
 
