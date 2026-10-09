@@ -2,7 +2,8 @@ import { Panel } from "./ui/Panel";
 import { Chip } from "./ui/Chip";
 import { StatRow } from "./ui/StatRow";
 import { POOL_ID, EPOCH_HOURS_ESTIMATE, UNBONDING_EPOCHS } from "../config";
-import { formatNear, yoctoToNear } from "../lib/near";
+import { formatNear } from "../lib/near";
+import { isVisible } from "../lib/journey";
 import { truncateAccountId } from "../lib/format";
 import type { PoolPosition } from "../hooks/usePoolAccount";
 
@@ -17,8 +18,7 @@ export function PositionPanel({
   connected: boolean;
   accountId: string | null;
 }) {
-  const unstakedNear = yoctoToNear(position.unstaked);
-  const hasUnstaked = unstakedNear > 0;
+  const hasUnstaked = isVisible(position.unstaked);
 
   const unstakeLabel = !hasUnstaked
     ? "unstaked"
