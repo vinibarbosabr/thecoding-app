@@ -31,6 +31,15 @@ export function usePoolAccount(): PoolPosition {
   const refetch = useCallback(() => setNonce((n) => n + 1), []);
 
   useEffect(() => {
+    setStaked("0");
+    setUnstaked("0");
+    setWithdrawalAvailable(false);
+    setLiquid(0n);
+    setFee(null);
+    setTotalStaked(null);
+  }, [accountId]);
+
+  useEffect(() => {
     if (!accountId) {
       setStaked("0");
       setUnstaked("0");
