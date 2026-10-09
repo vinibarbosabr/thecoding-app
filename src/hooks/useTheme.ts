@@ -4,13 +4,6 @@ export type Theme = "light" | "dark";
 
 const STORAGE_KEY = "theme";
 
-function systemPrefersDark(): boolean {
-  return (
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-color-scheme: dark)").matches
-  );
-}
-
 function readStoredTheme(): Theme | null {
   if (typeof window === "undefined") return null;
   const stored = window.localStorage.getItem(STORAGE_KEY);
@@ -18,7 +11,16 @@ function readStoredTheme(): Theme | null {
 }
 
 function resolveInitialTheme(): Theme {
-  return readStoredTheme() ?? (systemPrefersDark() ? "dark" : "light");
+  const stored = readStoredTheme();
+  if (stored) return stored;
+  // stored choice wins, else system pref, else dark (dark is the hero
+  // mode; matches the static class on <html> in index.html)
+  if (typeof window !== "undefined" && window.matchMedia) {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  }
+  return "dark";
 }
 
 function applyTheme(theme: Theme) {
