@@ -121,8 +121,8 @@ before approval.
 | s0 disconnected | connect wallet (header); read-only lookup form | — |
 | s1 empty | stake | how staking works |
 | s2 staked | unstake | stake more (swaps the primary), unstake all |
-| s3 unbonding | stake more | locked chip + estimate; help disclosure |
-| s4 withdrawable | withdraw | restake (swaps the primary), withdraw all |
+| s3 unbonding | stake more | locked chip + estimate; unstake + unstake all when staked is visible; help disclosure |
+| s4 withdrawable | withdraw | restake, unstake, stake more (swaps, when their balances allow); withdraw all + unstake all |
 
 - A pre-sign line, `→ thecoding.pool.near::method() · 50 tgas · 0
   deposit|deposit attached`, sits above every primary write so the
@@ -142,6 +142,21 @@ before approval.
 - Read-only account lookup ships in s0 (serves eth-implicit `0x…`
   delegators before connecting): public RPC view calls only, no wallet
   prompt, no signing.
+
+Amendment (2026-10-09, after manual wallet testing on mainnet):
+
+the state table above proved too rigid live: an account with both
+staked and withdrawable balances was locked into the withdraw row and
+could not unstake. actions are therefore availability-driven, not
+state-exclusive: the state chip and help copy stay state-driven, but
+every write whose balance is available renders somewhere (primary,
+swap, or one-click text action). availability rules: stake when
+liquid exceeds the 0.05 buffer; unstake and unstake all when staked
+is visible; restake, withdraw, and withdraw all when unstaked is
+visible and the contract reports availability. visible means
+formatNear renders it nonzero (>= 0.0001 near): display dust neither
+flips the state nor enables its write, so a dust-withdrawable
+account gets the staked journey, not a dead withdraw form.
 
 ### 7. Security posture unchanged
 
