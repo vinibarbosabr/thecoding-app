@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- Shipped-dependency audit gate restored: lockfile-only bump of
+  `pbkdf2` to 3.1.7 (production tree) and `source-map-js` to 1.2.2
+  (dev tree). `npm audit --omit=dev` reports 0 vulnerabilities.
+  Shipped in
+  [#15](https://github.com/vinibarbosabr/thecoding-app/pull/15).
+
 ## [2.0.0] - 2026-10-09
 
 Second generation of the interface: a modern terminal identity for the
