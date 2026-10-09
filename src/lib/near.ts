@@ -20,7 +20,7 @@ export function yoctoToNear(yocto: string): number {
 export function formatNear(yocto: string): string {
   return yoctoToNear(yocto).toLocaleString("en-US", {
     minimumFractionDigits: 0,
-    maximumFractionDigits: 5,
+    maximumFractionDigits: 4,
   });
 }
 

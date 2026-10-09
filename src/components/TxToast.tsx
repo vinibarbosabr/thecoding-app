@@ -1,5 +1,8 @@
 import { NEARBLOCKS_TX_BASE } from "../config";
 
+const toastCls =
+  "fixed bottom-4 right-4 z-40 rounded-panel border border-ink-25 bg-surface px-4 py-3 text-[13px] text-ink shadow-pop";
+
 export function TxToast({
   hash,
   pending,
@@ -10,18 +13,14 @@ export function TxToast({
   error: string | null;
 }) {
   if (pending && !hash) {
-    return (
-      <div className="fixed bottom-4 right-4 rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm shadow-lg">
-        Waiting for wallet signature…
-      </div>
-    );
+    return <div className={toastCls}>waiting for wallet signature…</div>;
   }
 
   if (error) {
     return (
-      <div className="fixed bottom-4 right-4 max-w-sm rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 shadow-lg">
-        <p className="font-medium">Transaction failed</p>
-        <p className="mt-1 break-words font-mono text-xs">{error}</p>
+      <div className={`${toastCls} max-w-sm`}>
+        <p className="font-semibold text-error">transaction failed</p>
+        <p className="mt-1 break-words font-mono text-xs text-ink-60">{error}</p>
       </div>
     );
   }
@@ -32,10 +31,12 @@ export function TxToast({
         href={`${NEARBLOCKS_TX_BASE}${hash}`}
         target="_blank"
         rel="noreferrer"
-        className="fixed bottom-4 right-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 shadow-lg transition hover:bg-emerald-100"
+        className={`${toastCls} transition duration-[120ms] hover:text-signal-ink`}
       >
-        <p className="font-medium">Transaction submitted</p>
-        <p className="mt-0.5 font-mono text-xs underline">{hash.slice(0, 18)}… → NearBlocks</p>
+        <p className="font-semibold text-signal-ink">transaction submitted</p>
+        <p className="mt-0.5 font-mono text-xs text-ink-60 underline">
+          {hash.slice(0, 18)}… → nearblocks
+        </p>
       </a>
     );
   }
