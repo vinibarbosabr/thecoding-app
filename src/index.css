@@ -79,6 +79,11 @@ body {
   outline-offset: 2px;
 }
 
+/* binary backdrop: ~5% opacity dark only, hidden on light paper */
+.backdrop-glyphs {
+  opacity: var(--backdrop-opacity);
+}
+
 /* wordmark cursor (signal block; reduced-motion keeps it static) */
 .cursor-blink {
   display: inline-block;
