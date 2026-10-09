@@ -21,7 +21,12 @@ pool call from a server account.
 **Use it:** [app.thecoding.dev](https://app.thecoding.dev) — no install, connect
 a wallet, stake.
 
-**v1:** connect → stake → unstake → withdraw.
+**v2:** connect → stake → unstake → withdraw, same custody and path,
+now with a position-first interface.
+
+<p align="center">
+  <img src="public/screenshots/screenshot-2026-10-09_17-10-20.png" alt="v2 staking hub: position-first terminal interface" width="720">
+</p>
 
 ---
 
