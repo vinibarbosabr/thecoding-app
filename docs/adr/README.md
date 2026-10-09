@@ -9,6 +9,7 @@ Dated records of decisions that affect how this app talks to
 | --- | --- | --- |
 | [ADR-01](./ADR-01.md) | **Accepted** | Self-custodial v1 UI: user-signed pool calls, no staking backend, NEAR Connect, contract-gated unbonding |
 | [ADR-02](./ADR-02.md) | **Accepted** | Security posture: no key material in the app's trust boundary — no browser-held keys, static-only hosting, scoped CSP (wallet-sandbox compatible; no script-src), minimal signing-path deps |
+| [ADR-03](./ADR-03.md) | **Accepted** | Visual system for the v2 shell: brand tokens, terminal-window panels, availability-driven journey; eth-implicit connect is connector-native (no custom registration code) |
 
 ## Adding an ADR
 

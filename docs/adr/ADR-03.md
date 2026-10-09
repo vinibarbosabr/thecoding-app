@@ -1,6 +1,6 @@
 # ADR-03 — Visual system: modern terminal identity for the v2 shell
 
-**Status:** Proposed
+**Status:** Accepted
 **Date:** 2026-10-09
 
 ## Context
@@ -215,7 +215,10 @@ an EVM wallet. Consequences:
 - `npm audit` baseline is unchanged by this work (no dependency
   changes); pre-existing advisories in dev/build tooling are tracked
   and gated separately per ADR-02 rule 4.
-- Wallet modal ordering remains an open implementation item on #7.
+- Wallet modal ordering: accepted as the connector ships it. The
+  connector-native modal (upstream manifest, including the Ethereum
+  Wallets entry, section 8) is the final ordering; no app-level
+  ordering code. Former open item on #7, resolved 2026-10-09.
 
 ## Supersedes / References
 
