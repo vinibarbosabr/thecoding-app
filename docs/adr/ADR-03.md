@@ -168,6 +168,42 @@ account gets the staked journey, not a dead withdraw form.
 - The signing path is untouched: `src/lib/pool.ts` and its contract
   call-table test are unchanged, and no key material appears anywhere.
 
+### 8. Amendment (2026-10-09): eth-implicit connect is connector-native
+
+Issue #10 planned a second connect path for eth-implicit (`0x` + 40
+hex) accounts: register the wallets from
+`https://evm-on-near.dev/manifest.json` on the app's NEAR Connect
+instance after `whenManifestLoaded`. The spike
+(`spike/eth-implicit-connect`, commit `a15c6ae`, since deleted)
+implemented exactly that. Before it shipped, the connector's upstream
+manifest ([hot-dao/near-selector `repository/manifest.json`](https://raw.githubusercontent.com/hot-dao/near-selector/refs/heads/main/repository/manifest.json),
+v1.1.0) gained a first-class `ethereum-wallets` entry: sandboxed
+executor at `https://evm-on-near.dev/executor.js`,
+`signAndSendTransaction` / `signAndSendTransactions`, mainnet enabled,
+no function-call-key sign-in (`signInWithFunctionCallKey: false`).
+
+Decision: **no custom registration code.** The connector offers the
+Ethereum Wallets option from its own manifest; verified live on mainnet
+(2026-10-09) on the deployed v2 UI, including a completed connect from
+an EVM wallet. Consequences:
+
+- The spike's app-level runtime fetch of `evm-on-near.dev/manifest.json`
+  and `connector.registerWallet()` loop is redundant (the connector
+  already performs both) and is rejected: it would have added an
+  app-controlled third-party fetch on top of the connector's own trust
+  anchor for no capability gain. The branch was deleted (recoverable by
+  hash `a15c6ae`); the spike's open questions carry over to #14 (UX
+  disclosures) and #11 (delegator guide).
+- New trust anchor, accepted per ADR-02 rule 4's re-review-on-upgrade
+  clause: `evm-on-near.dev` (executor, sign page, wallet icon) enters
+  the runtime perimeter via the connector manifest update, under the
+  same sandboxed-executor model as the existing manifest hosts. No
+  `connect-src` / `frame-src` CSP delta (both directives are
+  deliberately absent per ADR-02 section 3).
+- Remaining UX work for the eth-implicit path (gas, onboarding
+  transaction, NEP-518 no-batching disclosures, custody language) is
+  tracked on #14; it is copy and testing only, no signing-path change.
+
 ## Consequences
 
 - The token system is the single source of visual truth: new UI must
@@ -186,7 +222,12 @@ account gets the staked journey, not a dead withdraw form.
 - Builds on [ADR-01](./ADR-01.md) (custody model) and
   [ADR-02](./ADR-02.md) (security posture); supersedes neither.
 - Issues: #7 (shell), #8 (position panel), #9 (journey), #10
-  (eth-implicit delegators).
+  (eth-implicit delegators, closed as connector-native; see section 8),
+  #14 (eth-path UX disclosures), #11 (delegator guide).
+- Connector manifest trust anchor:
+  [hot-dao/near-selector manifest](https://raw.githubusercontent.com/hot-dao/near-selector/refs/heads/main/repository/manifest.json)
+  (`ethereum-wallets` entry since v1.1.0); executor host
+  [evm-on-near.dev](https://evm-on-near.dev/).
 - Fonts: [JetBrains Mono](https://github.com/JetBrains/JetBrainsMono)
   (SIL OFL 1.1).
 - Validator address: [thecoding.pool.near on
