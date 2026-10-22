@@ -1,6 +1,33 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-field: #042f2e;
+  --color-paper: #fff3ce;
+  --color-signal: #5ce7ff;
+  --color-on-accent: #042f2e;
+  --font-mono:
+    "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono", Menlo,
+    Consolas, monospace;
+  --radius-panel: 10px;
+  --radius-control: 8px;
+  --radius-chip: 6px;
+  --shadow-pop: 0 10px 30px rgba(0, 0, 0, 0.28);
+}
+
+@theme inline {
+  --color-ground: var(--ground);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-70: var(--ink-70);
+  --color-ink-60: var(--ink-60);
+  --color-ink-40: var(--ink-40);
+  --color-ink-25: var(--ink-25);
+  --color-ink-10: var(--ink-10);
+  --color-signal-ink: var(--signal-ink);
+  --color-error: var(--error);
+}
 
 /*
   JetBrains Mono 2.304, self-hosted from public/fonts/ (official
@@ -74,9 +101,11 @@ body {
   color: var(--on-accent, #042f2e);
 }
 
-:focus-visible {
-  outline: 2px solid var(--focus-ring);
-  outline-offset: 2px;
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
 }
 
 /* binary backdrop: ~5% opacity dark only, hidden on light paper */
