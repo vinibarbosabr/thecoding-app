@@ -16,7 +16,7 @@ pool call from a server account.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fapp.thecoding.dev)](https://app.thecoding.dev)
-[![Node](https://img.shields.io/badge/node-%3E%3D26.12.1-green)](package.json)
+[![Node](https://img.shields.io/badge/node-24.x-green)](package.json)
 
 **Use it:** [app.thecoding.dev](https://app.thecoding.dev) — no install, connect
 a wallet, stake.
@@ -81,7 +81,9 @@ npm test
 npm run build
 ```
 
-Requires Node 26.12.1 or newer (`.nvmrc` pins the exact patch). No
+Requires Node 24.x on Vercel (`engines` in `package.json`; the build
+image offers only 24.x/22.x majors and rolls security patches
+automatically). Local dev pins 24.22.1 via [`.nvmrc`](.nvmrc). No
 environment variables are needed:
 RPC endpoints are hardcoded in [`src/config.ts`](src/config.ts)
 (FastNEAR first, official mainnet RPC as fallback), and no `VITE_*`

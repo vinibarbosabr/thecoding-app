@@ -11,9 +11,11 @@ same change set.
 
 ## Prerequisites
 
-- **Node 26.12.1 or newer** (`"engines"` in
-  [`package.json`](package.json); [`.nvmrc`](.nvmrc) pins the exact
-  patch)
+- **Node 24.x** (`"engines"` in
+  [`package.json`](package.json); Vercel's build image offers only the
+  24.x and 22.x majors and auto-rolls security patches —
+  [docs](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions)).
+  [`.nvmrc`](.nvmrc) pins 24.22.1 for local dev (`nvm use`)
 - npm (any version that reads `package-lock.json` v3)
 
 ## Setup
