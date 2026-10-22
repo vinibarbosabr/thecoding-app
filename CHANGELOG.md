@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+- October 2026 threat audit ([docs/security](docs/security/2026-10-22-threat-audit.md)):
+  no direct exposure in the PHP2Shell / LiteLLM / eMudhra / Next.js /
+  TiDB / Plex / appliance wave. Node pinned for the October 2026
+  security releases to `24.x` (`engines`, `.nvmrc` 24.22.1 — Vercel's
+  build image has no 26.x major and auto-rolls security patches; see
+  the audit note's correction), dev tree cleared to `npm audit` = 0
+  via vite 6.4.5, vitest 5.0.5, and a tailwindcss 3 → 4.3.3 migration
+  (CSS-first theme tokens in `src/index.css`; scoped CSP, custody
+  model, and contract builders unchanged).
 - Shipped-dependency audit gate restored: lockfile-only bump of
   `pbkdf2` to 3.1.7 (production tree) and `source-map-js` to 1.2.2
   (dev tree). `npm audit --omit=dev` reports 0 vulnerabilities.
