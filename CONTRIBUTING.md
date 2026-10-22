@@ -11,8 +11,9 @@ same change set.
 
 ## Prerequisites
 
-- **Node 22.12 or newer** (`"engines"` in [`package.json`](package.json);
-  the test stack requires `^22.12 || ^24 || >=26`)
+- **Node 26.12.1 or newer** (`"engines"` in
+  [`package.json`](package.json); [`.nvmrc`](.nvmrc) pins the exact
+  patch)
 - npm (any version that reads `package-lock.json` v3)
 
 ## Setup
