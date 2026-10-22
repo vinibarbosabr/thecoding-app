@@ -8,6 +8,7 @@ This folder is the decision record.
 | Path | Purpose |
 | --- | --- |
 | [`adr/`](./adr/) | Architecture Decision Records. Read before changing the staking path. |
+| [`security/`](./security/) | Threat audits and incident records for this repository. |
 
 Accepted ADRs are the working architecture. A change that contradicts
 an Accepted ADR needs a new ADR in the same change set.
