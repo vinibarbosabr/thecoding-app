@@ -6,6 +6,7 @@ import { Backdrop } from "./components/Backdrop";
 import { PositionPanel } from "./components/PositionPanel";
 import { PoolStrip } from "./components/PoolStrip";
 import { JourneyPanel } from "./components/JourneyPanel";
+import { FaqPanel } from "./components/FaqPanel";
 import { TxToast } from "./components/TxToast";
 import { usePoolAccount } from "./hooks/usePoolAccount";
 import { useTx } from "./hooks/useTx";
@@ -44,6 +45,7 @@ function Shell() {
             pending={tx.pending}
             onSign={tx.sign}
           />
+          <FaqPanel />
         </main>
         <SiteFooter />
       </div>
