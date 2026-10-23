@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `#/data` view ([ADR-04](docs/adr/ADR-04.md)): live node stats
+  (epoch duties, stake rollover with reward and net-flow split,
+  kickout and slash record), network staking totals (staked sum,
+  staked ratio, validators, supply), protocol issuance parameters
+  with the HSP-029 framing, and per-epoch history charts. All
+  read-only from public RPC, the pool contract, and NearBlocks
+  stats; no backend, no new npm dependencies.
+- Epoch snapshot pipeline: `scripts/data-snapshot.mjs` records one
+  epoch at a time into `public/data/epochs.json` (build-time static
+  data), an hourly GitHub Action maintains one rolling data PR, and
+  the app fetches the file same-origin. Seeded live with epochs
+  4891-4894.
+- Epoch APY cell in `~/pool`: previous epoch's reward annualized net
+  of the pool fee, read live from the RPC `validators` method.
+  Labeled `est`; the derivation is documented in ADR-04 §2.
+- `~/faq` panel below `~/actions`: custody, unbonding/withdraw, and
+  rewards disclosures, copy fact-checked against NEAR docs and the
+  core-contracts staking pool source.
+
 ### Security
 
 - October 2026 threat audit ([docs/security](docs/security/2026-10-22-threat-audit.md)):
