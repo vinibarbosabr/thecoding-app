@@ -2,10 +2,16 @@ import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { Panel } from "./ui/Panel";
 import { Chip } from "./ui/Chip";
-import { getRewardFeeFraction, getTotalStakedBalance } from "../lib/pool";
-import { publicView } from "../lib/poolRead";
+import { fetchPoolStats, fetchValidators } from "../lib/networkRead";
+import {
+  annualizedApyPercent,
+  netApyPercent,
+  prevEpochStake,
+  toBig,
+} from "../lib/metrics";
+import type { FeeFraction } from "../lib/metrics";
 import { formatNear } from "../lib/near";
-import { EPOCH_HOURS_ESTIMATE, UNBONDING_EPOCHS } from "../config";
+import { POOL_ID, EPOCH_HOURS_ESTIMATE, UNBONDING_EPOCHS } from "../config";
 
 function Cell({ label, value, sub }: { label: string; value: ReactNode; sub: string }) {
   return (
@@ -18,23 +24,35 @@ function Cell({ label, value, sub }: { label: string; value: ReactNode; sub: str
 }
 
 export function PoolStrip() {
-  const [fee, setFee] = useState<{ numerator: number; denominator: number } | null>(
-    null,
-  );
+  const [fee, setFee] = useState<FeeFraction | null>(null);
   const [totalStaked, setTotalStaked] = useState<string | null>(null);
+  const [apy, setApy] = useState<number | null>(null);
+  const [epochHeight, setEpochHeight] = useState<number | null>(null);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const [f, t] = await Promise.all([
-          getRewardFeeFraction(publicView),
-          getTotalStakedBalance(publicView),
-        ]);
+        const stats = await fetchPoolStats();
         if (cancelled) return;
-        setFee(f);
-        setTotalStaked(t);
+        setFee(stats.fee);
+        setTotalStaked(stats.totalStaked);
+        // epoch apy: prev-epoch reward over its derived base stake,
+        // annualized, net of the pool fee. estimates stay quiet on failure.
+        try {
+          const v = await fetchValidators();
+          if (cancelled) return;
+          const reward = toBig(v.validator_reward_paid_prev_epoch?.[POOL_ID] ?? "0");
+          const gross = annualizedApyPercent(
+            reward,
+            prevEpochStake(toBig(stats.totalStaked), reward),
+          );
+          setApy(gross === null ? null : netApyPercent(gross, stats.fee));
+          setEpochHeight(v.epoch_height);
+        } catch {
+          /* apy unavailable right now; other cells still render */
+        }
       } catch {
         if (!cancelled) setFailed(true);
       }
@@ -47,8 +65,23 @@ export function PoolStrip() {
   const unbondHours = UNBONDING_EPOCHS * EPOCH_HOURS_ESTIMATE;
 
   return (
-    <Panel title="~/pool" ariaLabel="pool" status={<Chip>read: rpc</Chip>}>
-      <div className="grid justify-start gap-x-7 gap-y-2 [grid-template-columns:repeat(3,auto)] max-[520px]:[grid-template-columns:1fr]">
+    <Panel
+      title="~/pool"
+      ariaLabel="pool"
+      status={<Chip>read: rpc</Chip>}
+      foot={
+        <>
+          {epochHeight !== null && <span>epoch {epochHeight}</span>}
+          <a
+            href="#/data"
+            className="text-signal-ink underline decoration-ink-25 underline-offset-[3px] transition duration-[120ms] hover:decoration-signal-ink"
+          >
+            node & network data →
+          </a>
+        </>
+      }
+    >
+      <div className="grid justify-start gap-x-7 gap-y-2 [grid-template-columns:repeat(4,auto)] max-[520px]:[grid-template-columns:repeat(2,auto)]">
         <Cell
           label="fee"
           value={fee ? `${((fee.numerator / fee.denominator) * 100).toFixed(1)}%` : "…"}
@@ -58,6 +91,11 @@ export function PoolStrip() {
           label="total staked"
           value={totalStaked ? `${formatNear(totalStaked)} Ⓝ` : "…"}
           sub="all delegators"
+        />
+        <Cell
+          label="epoch apy"
+          value={apy !== null ? `~${apy.toFixed(2)}%` : "…"}
+          sub="est · net of fee"
         />
         <Cell
           label="unbonding"
