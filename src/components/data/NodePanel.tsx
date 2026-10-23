@@ -11,11 +11,12 @@ import {
 import type { ValidatorEntry, ValidatorsResult } from "../../lib/networkRead";
 import {
   annualizedApyPercent,
+  delegationFlowYocto,
   epochProgressPercent,
   netApyPercent,
-  netFlowYocto,
   prevEpochStake,
   productivityPercent,
+  stakeChangeYocto,
   toBig,
 } from "../../lib/metrics";
 import type { FeeFraction } from "../../lib/metrics";
@@ -102,14 +103,12 @@ export function NodePanel() {
 
   const stakeNow = data?.current?.stake ?? null;
   const reward = data ? toBig(data.validators.validator_reward_paid_prev_epoch?.[POOL_ID] ?? "0") : null;
-  const delta =
-    stakeNow && data?.nextStake && reward !== null
-      ? toBig(data.nextStake) - toBig(stakeNow)
+  const change =
+    stakeNow && data?.nextStake
+      ? stakeChangeYocto(toBig(stakeNow), toBig(data.nextStake))
       : null;
-  const flow =
-    stakeNow && data?.nextStake && reward !== null
-      ? netFlowYocto(toBig(stakeNow), toBig(data.nextStake), reward)
-      : null;
+  const delegations =
+    change !== null && reward !== null ? delegationFlowYocto(change, reward) : null;
   // same estimate as the hub apy cell: prev-epoch reward over its
   // derived base stake, annualized, net of the pool fee
   const apy = (() => {
@@ -189,10 +188,11 @@ export function NodePanel() {
                 value={data.nextStake ? formatNear(data.nextStake) : "·"}
                 unit="Ⓝ"
                 hint={
-                  delta !== null && flow !== null && reward !== null ? (
+                  change !== null && reward !== null && delegations !== null ? (
                     <>
-                      {formatDeltaYocto(delta)} Ⓝ at rollover · reward{" "}
-                      +{formatNear(reward.toString())} · net flow {formatDeltaYocto(flow)} Ⓝ
+                      {formatDeltaYocto(change)} Ⓝ at rollover · reward{" "}
+                      +{formatNear(reward.toString())} · delegations{" "}
+                      {formatDeltaYocto(delegations)} Ⓝ
                     </>
                   ) : (
                     "stake for the epoch after rollover"

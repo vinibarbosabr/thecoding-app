@@ -122,7 +122,7 @@ describe("formatNearCompact", () => {
 
 describe("formatDeltaYocto", () => {
   it("formats positive and negative deltas", () => {
-    // live 4894 -> 4895 reward delta and net flow
+    // live 4894 -> 4895 reward and delegation split
     expect(formatDeltaYocto(17238613113198740904295785n)).toBe("+17.2386");
     expect(formatDeltaYocto(373401763187880264555367n)).toBe("+0.3734");
   });

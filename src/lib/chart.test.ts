@@ -1,5 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { scalePoints, toPolyline, toAreaPath, barRects } from "./chart";
+import {
+  scalePoints,
+  toPolyline,
+  toAreaPath,
+  barRects,
+  flowBarRects,
+  labelIndices,
+} from "./chart";
 
 describe("scalePoints", () => {
   it("returns empty for an empty series", () => {
@@ -89,5 +96,50 @@ describe("barRects", () => {
 
   it("returns empty for no values", () => {
     expect(barRects([], 100, 40)).toEqual([]);
+  });
+});
+
+describe("flowBarRects", () => {
+  it("anchors the reward at zero and stacks delegation out to the total", () => {
+    // reward 10, delegation +5: bar spans zero..15, reward below, delegation on top
+    const { zeroY, bars } = flowBarRects([10], [5], 100, 40);
+    expect(bars).toHaveLength(1);
+    const [bar] = bars;
+    expect(bar.reward.y + bar.reward.h).toBeCloseTo(zeroY, 5); // reward sits on the zero line
+    expect(bar.delegation.y + bar.delegation.h).toBeCloseTo(bar.reward.y, 5); // delegation stacks on the reward tip
+    expect(bar.delegation.y).toBeCloseTo(2, 5); // outer edge = the total change (+15)
+  });
+
+  it("keeps the total on the bar's outer edge when delegations go negative", () => {
+    // reward 5, unstake -10: total -5; bar crosses the zero line, tip at -5
+    const { zeroY, bars } = flowBarRects([5], [-10], 100, 40);
+    const [bar] = bars;
+    expect(bar.delegation.y + bar.delegation.h).toBeCloseTo(zeroY + 18, 5); // tip = total (-5)
+    expect(bar.reward.y + bar.reward.h).toBeCloseTo(zeroY, 5); // reward still hugs zero
+  });
+
+  it("returns no bars for mismatched or empty inputs", () => {
+    expect(flowBarRects([], [], 100, 40).bars).toEqual([]);
+    expect(flowBarRects([1], [1, 2], 100, 40).bars).toEqual([]);
+  });
+});
+
+describe("labelIndices", () => {
+  it("labels every slot up to the max", () => {
+    expect(labelIndices(4)).toEqual([0, 1, 2, 3]);
+    expect(labelIndices(12)).toHaveLength(12);
+  });
+
+  it("thins past the max while keeping both ends", () => {
+    const idx = labelIndices(20);
+    expect(idx.length).toBeLessThanOrEqual(12);
+    expect(idx[0]).toBe(0);
+    expect(idx[idx.length - 1]).toBe(19);
+    expect(new Set(idx).size).toBe(idx.length); // no duplicates
+  });
+
+  it("handles the degenerate cases", () => {
+    expect(labelIndices(0)).toEqual([]);
+    expect(labelIndices(20, 1)).toEqual([19]);
   });
 });

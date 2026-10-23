@@ -70,6 +70,72 @@ export function barRects(
   });
 }
 
+/**
+ * Stacked per-epoch stake-change bars: the reward segment is anchored
+ * at the zero line (rewards are positive auto-compound), the delegation
+ * segment stacks outward from the reward tip to the total change, so
+ * every bar's outer edge reads as the epoch's total stake change.
+ * total = reward + delegation per bar; shared y domain.
+ */
+export type FlowBarRect = {
+  x: number;
+  w: number;
+  reward: { y: number; h: number };
+  delegation: { y: number; h: number };
+};
+
+export function flowBarRects(
+  rewards: number[],
+  delegations: number[],
+  width: number,
+  height: number,
+  gap = 1,
+  pad = 2,
+): { zeroY: number; bars: FlowBarRect[] } {
+  const n = rewards.length;
+  if (n === 0 || delegations.length !== n) return { zeroY: height - pad, bars: [] };
+  const totals = rewards.map((r, i) => r + delegations[i]);
+  const min = Math.min(0, ...totals);
+  const max = Math.max(0, ...rewards, ...totals);
+  const span = max - min || 1;
+  const innerH = Math.max(height - pad * 2, 0);
+  const yAt = (v: number) => pad + innerH - ((v - min) / span) * innerH;
+  const zeroY = yAt(0);
+  const barW = Math.max((width - pad * 2 - gap * (n - 1)) / n, 0.5);
+  const bars = rewards.map((reward, i) => {
+    const total = totals[i];
+    return {
+      x: pad + i * (barW + gap),
+      w: barW,
+      reward: {
+        y: Math.min(yAt(reward), zeroY),
+        h: Math.abs(yAt(reward) - zeroY),
+      },
+      delegation: {
+        y: Math.min(yAt(total), yAt(reward)),
+        h: Math.abs(yAt(total) - yAt(reward)),
+      },
+    };
+  });
+  return { zeroY, bars };
+}
+
+/**
+ * Evenly spread label slots for a value row of n points, keeping both
+ * ends and never more than max labels (duplicates collapse as the
+ * series grows).
+ */
+export function labelIndices(n: number, max = 12): number[] {
+  if (n <= 0) return [];
+  if (n <= max) return Array.from({ length: n }, (_, i) => i);
+  if (max <= 1) return [n - 1];
+  const count = Math.min(max, n);
+  const seen = new Set(
+    Array.from({ length: count }, (_, i) => Math.round((i * (n - 1)) / (count - 1))),
+  );
+  return [...seen];
+}
+
 function round(n: number): number {
   return Math.round(n * 100) / 100;
 }
