@@ -35,10 +35,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   down from the site header into the intro block), plus the
   `node & network data →` link in the `~/pool` foot.
 - `~/pool` cell `epoch apy` renamed to `apy` (APY is an annualized
-  figure, not a per-epoch one); `total staked` renders compact
-  (`432.19k`) on the same line as its label. Cell copy no longer
-  wraps mid-phrase; the unbonding cell reads `4 epochs (~30h)` with
-  its label below.
+  figure, not a per-epoch one). The four cells sit side by side,
+  value over label: `fee 5.0% / of rewards`, `432.23k Ⓝ / total
+  staked`, `~4.43% / est. apy`, `4 epochs (~30h) / unbonding time`;
+  `total staked` renders compact.
 - `~/actions` lookup intro breaks into two lines: the question, then
   the read-only explainer.
 - `~/node` reward cell shows the same net APY estimate under the

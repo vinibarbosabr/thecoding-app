@@ -13,31 +13,13 @@ import type { FeeFraction } from "../lib/metrics";
 import { formatNearCompact } from "../lib/near";
 import { POOL_ID, EPOCH_HOURS_ESTIMATE, UNBONDING_EPOCHS } from "../config";
 
-function Cell({
-  label,
-  value,
-  sub,
-  inline = false,
-}: {
-  label: string;
-  value: ReactNode;
-  sub: string;
-  inline?: boolean;
-}) {
+function StatCell({ top, label }: { top: ReactNode; label: string }) {
   return (
-    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 font-mono text-xs leading-none">
-      {inline ? (
-        <span className="flex items-baseline gap-2 whitespace-nowrap">
-          <span className="text-[11px] text-ink-60">{label}</span>
-          <span className="font-semibold tabular-nums text-ink">{value}</span>
-        </span>
-      ) : (
-        <>
-          <span className="text-[11px] text-ink-60">{label}</span>
-          <span className="font-semibold tabular-nums text-ink">{value}</span>
-        </>
-      )}
-      <span className="whitespace-nowrap text-[10px] text-ink-60">{sub}</span>
+    <div className="flex flex-col gap-1.5 font-mono leading-none">
+      <span className="whitespace-nowrap text-xs font-semibold tabular-nums text-ink">
+        {top}
+      </span>
+      <span className="whitespace-nowrap text-[10px] text-ink-60">{label}</span>
     </div>
   );
 }
@@ -100,37 +82,33 @@ export function PoolStrip() {
         </>
       }
     >
-      <div className="flex flex-wrap items-baseline gap-x-7 gap-y-2.5">
-        <Cell
-          label="fee"
-          value={fee ? `${((fee.numerator / fee.denominator) * 100).toFixed(1)}%` : "…"}
-          sub="of rewards"
-        />
-        <Cell
-          label="total staked"
-          inline
-          value={
-            totalStaked ? (
-              <span className="whitespace-nowrap">
-                {formatNearCompact(totalStaked)} Ⓝ
-              </span>
-            ) : (
-              "…"
-            )
+      <div className="grid grid-cols-[repeat(4,auto)] justify-between gap-x-4 gap-y-3.5 max-[520px]:grid-cols-[repeat(2,auto)]">
+        <StatCell
+          label="of rewards"
+          top={
+            <>
+              <span className="text-[11px] font-normal text-ink-60">fee</span>{" "}
+              {fee ? `${((fee.numerator / fee.denominator) * 100).toFixed(1)}%` : "…"}
+            </>
           }
-          sub="all delegators"
         />
-        <Cell
-          label="apy"
-          value={apy !== null ? `~${apy.toFixed(2)}%` : "…"}
-          sub="est · net of fee"
+        <StatCell
+          label="total staked"
+          top={totalStaked ? `${formatNearCompact(totalStaked)} Ⓝ` : "…"}
         />
-        <div className="flex flex-col gap-1 font-mono leading-none">
-          <span className="whitespace-nowrap text-xs font-semibold tabular-nums text-ink">
-            {UNBONDING_EPOCHS} epochs (~{unbondHours}h)
-          </span>
-          <span className="text-[10px] text-ink-60">unbonding</span>
-        </div>
+        <StatCell
+          label="est. apy"
+          top={apy !== null ? `~${apy.toFixed(2)}%` : "…"}
+        />
+        <StatCell
+          label="unbonding time"
+          top={
+            <>
+              <span className="font-semibold">{UNBONDING_EPOCHS} epochs</span>{" "}
+              <span className="font-normal text-ink-60">(~{unbondHours}h)</span>
+            </>
+          }
+        />
       </div>
       {failed && (
         <p className="mt-3 font-mono text-xs text-error">

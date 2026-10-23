@@ -46,7 +46,7 @@ backend, a key, or a signature.
 The stake/unstake hub gains exactly two additions and nothing else:
 
 - a fourth cell in `~/pool`: **apy** (last epoch's reward, annualized,
-  net of pool fee), labeled `est · net of fee` because the base stake is
+  net of pool fee), labeled `est. apy` because the base stake is
   derived (below) and the epoch length is an estimate
   (`EPOCH_HOURS_ESTIMATE` in src/config.ts);
 - a collapsed `~/faq` panel below `~/actions` with three disclosures.
