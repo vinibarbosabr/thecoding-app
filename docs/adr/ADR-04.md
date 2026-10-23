@@ -57,14 +57,12 @@ routing (`window.location.hash`), no router dependency, no server
 rewrite. A path route (`/data`) would need a `vercel.json` SPA rewrite;
 that file is frozen per ADR-02 discipline and is not touched.
 
-The two surfaces cross-link prominently, in two places each: a
-route-aware text link in the site header (`node data →` from the hub,
-`staking hub ←` from the data view), and a full-width lead block
-(`LeadLink` in `src/components/ui/LeadLink.tsx`) at the bottom of the
-hub (`node & network data` with a one-line description of what lives
-there) and at the top of the data view (`staking hub`). The `~/pool`
-foot keeps only the epoch line; there is no dim foot link. Nothing
-auto-navigates.
+The two surfaces cross-link in two places, both prominent: a lead
+block (`LeadLink` in `src/components/ui/LeadLink.tsx`) at the top of
+each surface, beside the custody note in a two-column intro block
+(above `~/position` on the hub, above `~/node` on the data view), and
+the `node & network data →` link in the `~/pool` foot beside the epoch
+line. Nothing auto-navigates.
 
 This amends ADR-03 §5 in one direction only: "no validator-health stats
 in the delegator hub" still holds (validator health renders on the data

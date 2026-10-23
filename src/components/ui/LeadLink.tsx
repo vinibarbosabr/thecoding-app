@@ -17,7 +17,7 @@ export function LeadLink({
   return (
     <a
       href={href}
-      className="group mt-[22px] flex items-center gap-3.5 rounded-panel border border-ink-25 bg-surface px-4 py-3.5 transition duration-[120ms] hover:border-signal-ink"
+      className="group flex max-w-full items-center gap-3.5 rounded-panel border border-ink-25 bg-surface px-4 py-3.5 transition duration-[120ms] hover:border-signal-ink"
     >
       <span
         aria-hidden="true"

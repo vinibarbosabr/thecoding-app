@@ -37,7 +37,7 @@ function Cell({
           <span className="font-semibold tabular-nums text-ink">{value}</span>
         </>
       )}
-      <span className="text-[10px] text-ink-60">{sub}</span>
+      <span className="whitespace-nowrap text-[10px] text-ink-60">{sub}</span>
     </div>
   );
 }
@@ -89,10 +89,18 @@ export function PoolStrip() {
       ariaLabel="pool"
       status={<Chip>read: rpc</Chip>}
       foot={
-        <>{epochHeight !== null && <span>epoch {epochHeight}</span>}</>
+        <>
+          {epochHeight !== null && <span>epoch {epochHeight}</span>}
+          <a
+            href="#/data"
+            className="text-signal-ink underline decoration-ink-25 underline-offset-[3px] transition duration-[120ms] hover:decoration-signal-ink"
+          >
+            node & network data →
+          </a>
+        </>
       }
     >
-      <div className="grid justify-start gap-x-7 gap-y-2 [grid-template-columns:repeat(4,auto)] max-[520px]:[grid-template-columns:repeat(2,auto)]">
+      <div className="flex flex-wrap items-baseline gap-x-7 gap-y-2.5">
         <Cell
           label="fee"
           value={fee ? `${((fee.numerator / fee.denominator) * 100).toFixed(1)}%` : "…"}
@@ -117,11 +125,12 @@ export function PoolStrip() {
           value={apy !== null ? `~${apy.toFixed(2)}%` : "…"}
           sub="est · net of fee"
         />
-        <Cell
-          label="unbonding"
-          value={`${UNBONDING_EPOCHS} epochs`}
-          sub={`~${unbondHours}h · protocol`}
-        />
+        <div className="flex flex-col gap-1 font-mono leading-none">
+          <span className="whitespace-nowrap text-xs font-semibold tabular-nums text-ink">
+            {UNBONDING_EPOCHS} epochs (~{unbondHours}h)
+          </span>
+          <span className="text-[10px] text-ink-60">unbonding</span>
+        </div>
       </div>
       {failed && (
         <p className="mt-3 font-mono text-xs text-error">

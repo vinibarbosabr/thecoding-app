@@ -30,13 +30,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- The hub and `#/data` cross-link prominently instead of through a dim
-  foot line: a route-aware link in the site header plus a full-width
-  lead block (`LeadLink`) on both surfaces. The `~/pool` foot keeps
-  only the epoch line.
+- The hub and `#/data` cross-link prominently: a `LeadLink` block
+  beside the custody note at the top of each surface (the note moves
+  down from the site header into the intro block), plus the
+  `node & network data →` link in the `~/pool` foot.
 - `~/pool` cell `epoch apy` renamed to `apy` (APY is an annualized
   figure, not a per-epoch one); `total staked` renders compact
-  (`432.19k`) on the same line as its label.
+  (`432.19k`) on the same line as its label. Cell copy no longer
+  wraps mid-phrase; the unbonding cell reads `4 epochs (~30h)` with
+  its label below.
+- `~/actions` lookup intro breaks into two lines: the question, then
+  the read-only explainer.
 - `~/node` reward cell shows the same net APY estimate under the
   reward figure; the foot line is relabeled `node key · public` so the
   `ed25519:…` value reads as what it is: the public on-chain consensus

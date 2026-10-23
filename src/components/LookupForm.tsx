@@ -27,11 +27,13 @@ export function LookupForm() {
 
   return (
     <div>
-      <p className="mb-4 text-[13.5px] leading-normal text-ink-70">
-        curious where you stand? look up any account, including{" "}
-        <span className="font-mono">0x…</span> eth-implicit ones. read-only,
-        public rpc, no signing.
-      </p>
+      <div className="mb-4 text-[13.5px] leading-normal text-ink-70">
+        <p>curious where you stand?</p>
+        <p className="mt-1">
+          look up any account, including <span className="font-mono">0x…</span>{" "}
+          eth-implicit ones. read-only, public rpc, no signing.
+        </p>
+      </div>
       <form className="flex flex-wrap items-center gap-2.5" onSubmit={submit}>
         <div className="min-w-0 flex-[1_1_220px]">
           <input

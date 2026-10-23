@@ -11,6 +11,7 @@ import { FaqPanel } from "./components/FaqPanel";
 import { DataView } from "./components/DataView";
 import { TxToast } from "./components/TxToast";
 import { LeadLink } from "./components/ui/LeadLink";
+import { CustodyNote } from "./components/ui/CustodyNote";
 import { usePoolAccount } from "./hooks/usePoolAccount";
 import { useTx } from "./hooks/useTx";
 import { useTheme } from "./hooks/useTheme";
@@ -41,12 +42,20 @@ function Shell() {
     <div className="relative min-h-screen">
       <Backdrop />
       <div className="relative z-10 mx-auto max-w-[672px] px-5 pt-6 max-[520px]:px-4 max-[520px]:pt-[18px]">
-        <SiteHeader onToggleTheme={toggle} route={route} />
+        <SiteHeader onToggleTheme={toggle} />
         <main>
           {showData ? (
             <DataView />
           ) : (
             <>
+              <div className="mt-[22px] grid items-center gap-4 [grid-template-columns:minmax(0,1fr)_auto] max-[520px]:grid-cols-1 max-[520px]:gap-3.5">
+                <CustodyNote />
+                <LeadLink
+                  href="#/data"
+                  title="node & network data"
+                  description="uptime, network stats, issuance, epoch history"
+                />
+              </div>
               <PositionPanel
                 position={position}
                 connected={connected}
@@ -60,11 +69,6 @@ function Shell() {
                 onSign={tx.sign}
               />
               <FaqPanel />
-              <LeadLink
-                href="#/data"
-                title="node & network data"
-                description="validator uptime, network staking totals, issuance parameters, and epoch history"
-              />
             </>
           )}
         </main>
