@@ -9,7 +9,8 @@ import {
   productivityPercent,
   sumStakes,
   stakedRatioPercent,
-  netFlowYocto,
+  stakeChangeYocto,
+  delegationFlowYocto,
   epochProgressPercent,
 } from "./metrics";
 import { EPOCH_HOURS_ESTIMATE } from "../config";
@@ -128,14 +129,29 @@ describe("stakedRatioPercent", () => {
   });
 });
 
-describe("netFlowYocto", () => {
-  it("separates delegation flow from reward growth (live 4894 -> 4895)", () => {
-    const flow = netFlowYocto(STAKE_4894, STAKE_4895, REWARD_4893);
-    expect(flow).toBe(373401763187880264555367n);
+describe("stakeChangeYocto", () => {
+  it("totals the live 4894 -> 4895 rollover at +17.612 Ⓝ", () => {
+    const change = stakeChangeYocto(STAKE_4894, STAKE_4895);
+    expect(change).toBe(17612014876386621168851152n);
   });
 
-  it("goes negative on net withdrawals", () => {
-    expect(netFlowYocto(100n, 80n, 5n)).toBe(-25n);
+  it("adds a 1,000 Ⓝ delegation on top of a 17 Ⓝ reward (spec example)", () => {
+    const near = 10n ** 24n;
+    expect(stakeChangeYocto(432000n * near, 433017n * near)).toBe(1017n * near);
+  });
+});
+
+describe("delegationFlowYocto", () => {
+  it("splits the live 4894 change into reward + delegation (+17.2386 + +0.3734)", () => {
+    const change = stakeChangeYocto(STAKE_4894, STAKE_4895);
+    expect(delegationFlowYocto(change, REWARD_4893)).toBe(373401763187880264555367n);
+  });
+
+  it("nets a 34 Ⓝ unstake against a 17 Ⓝ reward to a -17 Ⓝ change (spec example)", () => {
+    const near = 10n ** 24n;
+    const change = stakeChangeYocto(433000n * near, 432983n * near);
+    expect(change).toBe(-17n * near);
+    expect(delegationFlowYocto(change, 17n * near)).toBe(-34n * near);
   });
 });
 

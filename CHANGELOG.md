@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `#/data` view ([ADR-04](docs/adr/ADR-04.md)): live node stats
-  (epoch duties, stake rollover with reward and net-flow split,
+  (epoch duties, stake rollover with reward and delegation split,
   kickout and slash record), network staking totals (staked sum,
   staked ratio, validators, supply), protocol issuance parameters
   with the HSP-029 framing, and per-epoch history charts. All
@@ -45,9 +45,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   reward figure; the foot line is relabeled `node key · public` so the
   `ed25519:…` value reads as what it is: the public on-chain consensus
   key, not secret material.
-- `~/epochs` net-flow chart captions keep 6 decimals (the per-epoch net
-  flow is ~0.0001 Ⓝ, which rounded to `0.00 Ⓝ`); the stake line
-  caption now shows the first and last stake values.
+- `~/epochs` charts the per-epoch stake change instead of the
+  delegation-only net flow: the old metric stripped the ~17 Ⓝ
+  auto-compounded reward out and plotted ~0.0001 Ⓝ of noise.
+  Bars now plot the reward-inclusive change (1,000 Ⓝ staked on a
+  17 Ⓝ reward reads +1017 Ⓝ; a 34 Ⓝ unstake reads -17 Ⓝ), split
+  into two segments: the reward block hugs the zero line,
+  delegations stack outward from it, so each bar's outer edge is
+  the epoch's total change. The table's flow column becomes
+  change (reward + delegations) and the caption sums the window:
+  `Σ +51.9929 Ⓝ · largest +17.4419 Ⓝ` on the seeded history.
+- All three `~/epochs` charts label their plotted values: the apy
+  and stake-change bars carry a value row under the plot (thinned
+  to 12 slots as history grows) and the stake line labels its
+  first and last values; captions keep the epochs and counts.
+- `~/node` next-epoch hint splits the rollover delta the same
+  way: `+17.61 Ⓝ at rollover · reward +17.2386 · delegations
+  +0.3734 Ⓝ`.
 
 ### Security
 

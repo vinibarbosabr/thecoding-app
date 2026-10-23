@@ -62,12 +62,20 @@ export function stakedRatioPercent(staked: bigint, circulating: bigint): number 
 }
 
 /**
- * Next-epoch stake delta minus the reward that accrued on its own:
- * the net delegation flow (deposits minus withdrawals) for the epoch.
- * Positive = net stake inflow, negative = net outflow.
+ * Reward-inclusive per-epoch stake change: next epoch's stake minus
+ * this epoch's stake, in yocto. Positive = the pool grew. The reward
+ * (~17 Ⓝ today) accrues into every epoch's change: 1,000 Ⓝ staked on
+ * a 17 Ⓝ reward reads +1017, a 34 Ⓝ unstake in another reads -17.
  */
-export function netFlowYocto(currentStake: bigint, nextStake: bigint, reward: bigint): bigint {
-  return nextStake - currentStake - reward;
+export function stakeChangeYocto(stake: bigint, nextStake: bigint): bigint {
+  return nextStake - stake;
+}
+
+/** Stake change minus the reward: the delegation-only flow (deposits
+ * minus withdrawals) for the epoch. Positive = net stake inflow,
+ * negative = net outflow. */
+export function delegationFlowYocto(stakeChange: bigint, reward: bigint): bigint {
+  return stakeChange - reward;
 }
 
 /**
