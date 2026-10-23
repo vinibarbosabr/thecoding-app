@@ -96,7 +96,7 @@ describe("networkRead", () => {
     );
     const config = await fetchProtocolConfig();
     expect(config.max_inflation_rate).toEqual([1, 40]);
-    expect(totalShards(config)).toBe(4);
+    expect(totalShards(config)).toBe(3);
   });
 
   it("fetchNetworkStats parses nearblocks and nulls on http failure", async () => {

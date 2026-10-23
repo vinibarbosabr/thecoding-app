@@ -10,6 +10,7 @@ import {
   sumStakes,
   stakedRatioPercent,
   netFlowYocto,
+  epochProgressPercent,
 } from "./metrics";
 import { EPOCH_HOURS_ESTIMATE } from "../config";
 
@@ -135,5 +136,25 @@ describe("netFlowYocto", () => {
 
   it("goes negative on net withdrawals", () => {
     expect(netFlowYocto(100n, 80n, 5n)).toBe(-25n);
+  });
+});
+
+describe("epochProgressPercent", () => {
+  it("computes live progress from the tip (epoch 4894 heights)", () => {
+    // tip 221,268,243 vs epoch start 221,241,134 over 43,200 blocks
+    expect(epochProgressPercent(221_268_243, 221_241_134, 43_200)).toBeCloseTo(
+      62.75,
+      2,
+    );
+  });
+
+  it("clamps past the epoch end", () => {
+    // epoch 4894 started at height 221,241,134; +50k blocks is past its end
+    expect(epochProgressPercent(221_291_134, 221_241_134, 43_200)).toBe(100);
+  });
+
+  it("returns null on inconsistent inputs", () => {
+    expect(epochProgressPercent(100, 200, 43_200)).toBeNull();
+    expect(epochProgressPercent(100, 50, 0)).toBeNull();
   });
 });

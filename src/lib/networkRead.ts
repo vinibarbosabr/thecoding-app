@@ -69,6 +69,18 @@ export type PoolStats = {
   totalStaked: string;
 };
 
+export type ChainStatus = {
+  latestBlockHeight: number;
+};
+
+/** Current tip height (for epoch progress); params is an empty array. */
+export function fetchChainStatus(): Promise<ChainStatus> {
+  return cached("status", 30_000, async () => {
+    const r = await rpcJson<{ sync_info?: { latest_block_height?: number } }>("status", []);
+    return { latestBlockHeight: r.sync_info?.latest_block_height ?? 0 };
+  });
+}
+
 async function rpcJson<T>(method: string, params: unknown): Promise<T> {
   let lastError: unknown = null;
   for (const url of RPC_URLS) {
@@ -97,6 +109,7 @@ const cache: {
   protocol?: CacheCell<ProtocolConfig>;
   stats?: CacheCell<NetworkStats | null>;
   pool?: CacheCell<PoolStats>;
+  status?: CacheCell<ChainStatus>;
 } = {};
 
 export function resetNetworkReadCache(): void {
@@ -104,6 +117,7 @@ export function resetNetworkReadCache(): void {
   cache.protocol = undefined;
   cache.stats = undefined;
   cache.pool = undefined;
+  cache.status = undefined;
 }
 
 function cached<T>(cell: keyof typeof cache, ttlMs: number, load: () => Promise<T>): Promise<T> {
@@ -182,9 +196,14 @@ export function fetchPoolStats(): Promise<PoolStats> {
   });
 }
 
+/**
+ * Shard count from the live layout. In V3 each boundary account is
+ * the first account of its own shard, so the count is the boundary
+ * list length; V1 states its shard count directly.
+ */
 export function totalShards(config: ProtocolConfig): number | null {
   const v3 = config.shard_layout?.V3;
-  if (v3?.boundary_accounts) return v3.boundary_accounts.length + 1;
+  if (v3?.boundary_accounts) return v3.boundary_accounts.length;
   const v1 = config.shard_layout?.V1;
   if (typeof v1?.num_shards === "number") return v1.num_shards;
   return null;

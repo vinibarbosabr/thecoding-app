@@ -69,3 +69,16 @@ export function stakedRatioPercent(staked: bigint, circulating: bigint): number 
 export function netFlowYocto(currentStake: bigint, nextStake: bigint, reward: bigint): bigint {
   return nextStake - currentStake - reward;
 }
+
+/**
+ * How far the current epoch has advanced, 0..100, from the tip height
+ * and the epoch's start height. Null when the inputs are inconsistent.
+ */
+export function epochProgressPercent(
+  tipHeight: number,
+  epochStartHeight: number,
+  epochLength: number,
+): number | null {
+  if (epochLength <= 0 || tipHeight < epochStartHeight) return null;
+  return Math.min(((tipHeight - epochStartHeight) / epochLength) * 100, 100);
+}
