@@ -10,14 +10,33 @@ import {
   toBig,
 } from "../lib/metrics";
 import type { FeeFraction } from "../lib/metrics";
-import { formatNear } from "../lib/near";
+import { formatNearCompact } from "../lib/near";
 import { POOL_ID, EPOCH_HOURS_ESTIMATE, UNBONDING_EPOCHS } from "../config";
 
-function Cell({ label, value, sub }: { label: string; value: ReactNode; sub: string }) {
+function Cell({
+  label,
+  value,
+  sub,
+  inline = false,
+}: {
+  label: string;
+  value: ReactNode;
+  sub: string;
+  inline?: boolean;
+}) {
   return (
-    <div className="flex flex-wrap items-baseline gap-2 font-mono text-xs leading-none">
-      <span className="text-[11px] text-ink-60">{label}</span>
-      <span className="font-semibold tabular-nums text-ink">{value}</span>
+    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 font-mono text-xs leading-none">
+      {inline ? (
+        <span className="flex items-baseline gap-2 whitespace-nowrap">
+          <span className="text-[11px] text-ink-60">{label}</span>
+          <span className="font-semibold tabular-nums text-ink">{value}</span>
+        </span>
+      ) : (
+        <>
+          <span className="text-[11px] text-ink-60">{label}</span>
+          <span className="font-semibold tabular-nums text-ink">{value}</span>
+        </>
+      )}
       <span className="text-[10px] text-ink-60">{sub}</span>
     </div>
   );
@@ -38,7 +57,7 @@ export function PoolStrip() {
         if (cancelled) return;
         setFee(stats.fee);
         setTotalStaked(stats.totalStaked);
-        // epoch apy: prev-epoch reward over its derived base stake,
+        // apy: prev-epoch reward over its derived base stake,
         // annualized, net of the pool fee. estimates stay quiet on failure.
         try {
           const v = await fetchValidators();
@@ -70,15 +89,7 @@ export function PoolStrip() {
       ariaLabel="pool"
       status={<Chip>read: rpc</Chip>}
       foot={
-        <>
-          {epochHeight !== null && <span>epoch {epochHeight}</span>}
-          <a
-            href="#/data"
-            className="text-signal-ink underline decoration-ink-25 underline-offset-[3px] transition duration-[120ms] hover:decoration-signal-ink"
-          >
-            node & network data →
-          </a>
-        </>
+        <>{epochHeight !== null && <span>epoch {epochHeight}</span>}</>
       }
     >
       <div className="grid justify-start gap-x-7 gap-y-2 [grid-template-columns:repeat(4,auto)] max-[520px]:[grid-template-columns:repeat(2,auto)]">
@@ -89,11 +100,20 @@ export function PoolStrip() {
         />
         <Cell
           label="total staked"
-          value={totalStaked ? `${formatNear(totalStaked)} Ⓝ` : "…"}
+          inline
+          value={
+            totalStaked ? (
+              <span className="whitespace-nowrap">
+                {formatNearCompact(totalStaked)} Ⓝ
+              </span>
+            ) : (
+              "…"
+            )
+          }
           sub="all delegators"
         />
         <Cell
-          label="epoch apy"
+          label="apy"
           value={apy !== null ? `~${apy.toFixed(2)}%` : "…"}
           sub="est · net of fee"
         />

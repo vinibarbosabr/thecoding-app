@@ -21,12 +21,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   data), an hourly GitHub Action maintains one rolling data PR, and
   the app fetches the file same-origin. Seeded live with epochs
   4891-4894.
-- Epoch APY cell in `~/pool`: previous epoch's reward annualized net
+- APY cell in `~/pool`: previous epoch's reward annualized net
   of the pool fee, read live from the RPC `validators` method.
-  Labeled `est`; the derivation is documented in ADR-04 §2.
+  Labeled `est · net of fee`; the derivation is documented in ADR-04 §2.
 - `~/faq` panel below `~/actions`: custody, unbonding/withdraw, and
   rewards disclosures, copy fact-checked against NEAR docs and the
   core-contracts staking pool source.
+
+### Changed
+
+- The hub and `#/data` cross-link prominently instead of through a dim
+  foot line: a route-aware link in the site header plus a full-width
+  lead block (`LeadLink`) on both surfaces. The `~/pool` foot keeps
+  only the epoch line.
+- `~/pool` cell `epoch apy` renamed to `apy` (APY is an annualized
+  figure, not a per-epoch one); `total staked` renders compact
+  (`432.19k`) on the same line as its label.
+- `~/node` reward cell shows the same net APY estimate under the
+  reward figure; the foot line is relabeled `node key · public` so the
+  `ed25519:…` value reads as what it is: the public on-chain consensus
+  key, not secret material.
+- `~/epochs` net-flow chart captions keep 6 decimals (the per-epoch net
+  flow is ~0.0001 Ⓝ, which rounded to `0.00 Ⓝ`); the stake line
+  caption now shows the first and last stake values.
 
 ### Security
 

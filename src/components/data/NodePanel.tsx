@@ -4,16 +4,21 @@ import { Chip } from "../ui/Chip";
 import { StatRow } from "../ui/StatRow";
 import {
   fetchChainStatus,
+  fetchPoolStats,
   fetchProtocolConfig,
   fetchValidators,
 } from "../../lib/networkRead";
 import type { ValidatorEntry, ValidatorsResult } from "../../lib/networkRead";
 import {
+  annualizedApyPercent,
   epochProgressPercent,
+  netApyPercent,
   netFlowYocto,
+  prevEpochStake,
   productivityPercent,
   toBig,
 } from "../../lib/metrics";
+import type { FeeFraction } from "../../lib/metrics";
 import { formatNear, formatDeltaYocto } from "../../lib/near";
 import { EPOCH_HOURS_ESTIMATE, POOL_ID } from "../../config";
 
@@ -24,6 +29,7 @@ type NodeData = {
   proposing: boolean;
   kickedOut: boolean;
   progress: number | null;
+  fee: FeeFraction | null;
 };
 
 function DutyRow({ label, produced, expected }: { label: string; produced?: number; expected?: number }) {
@@ -56,10 +62,11 @@ export function NodePanel() {
     let cancelled = false;
     (async () => {
       try {
-        const [validators, config, status] = await Promise.all([
+        const [validators, config, status, pool] = await Promise.all([
           fetchValidators(),
           fetchProtocolConfig().catch(() => null),
           fetchChainStatus().catch(() => null),
+          fetchPoolStats().catch(() => null),
         ]);
         if (cancelled) return;
         const current =
@@ -82,6 +89,7 @@ export function NodePanel() {
                   config.epoch_length,
                 )
               : null,
+          fee: pool?.fee ?? null,
         });
       } catch {
         if (!cancelled) setFailed(true);
@@ -102,6 +110,16 @@ export function NodePanel() {
     stakeNow && data?.nextStake && reward !== null
       ? netFlowYocto(toBig(stakeNow), toBig(data.nextStake), reward)
       : null;
+  // same estimate as the hub apy cell: prev-epoch reward over its
+  // derived base stake, annualized, net of the pool fee
+  const apy = (() => {
+    if (!data?.fee || !stakeNow || reward === null || reward <= 0n) return null;
+    const gross = annualizedApyPercent(
+      reward,
+      prevEpochStake(toBig(stakeNow), reward),
+    );
+    return gross === null ? null : netApyPercent(gross, data.fee);
+  })();
 
   if (failed) {
     return (
@@ -125,7 +143,9 @@ export function NodePanel() {
               : ""}
           </span>
           {data?.current?.public_key ? (
-            <span>stake key · {data.current.public_key.slice(0, 14)}…</span>
+            <span>
+              node key · public · {data.current.public_key.slice(0, 14)}…
+            </span>
           ) : null}
         </>
       }
@@ -185,7 +205,19 @@ export function NodePanel() {
                 label="reward"
                 value={reward && reward > 0n ? formatNear(reward.toString()) : "·"}
                 unit="Ⓝ"
-                hint={`previous epoch · auto-compounded · ~${EPOCH_HOURS_ESTIMATE}h epochs`}
+                hint={
+                  <span className="flex flex-col gap-1">
+                    <span>
+                      previous epoch · auto-compounded · ~
+                      {EPOCH_HOURS_ESTIMATE}h epochs
+                    </span>
+                    {apy !== null ? (
+                      <span className="text-signal-ink">
+                        ~{apy.toFixed(2)}% apy · est · net of fee
+                      </span>
+                    ) : null}
+                  </span>
+                }
               />
             </div>
           </div>

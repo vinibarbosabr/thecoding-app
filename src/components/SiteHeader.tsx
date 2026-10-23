@@ -4,9 +4,16 @@ import { Btn } from "./ui/Btn";
 import { Chip, ChipDot } from "./ui/Chip";
 import { AccountChip } from "./AccountChip";
 
-export function SiteHeader({ onToggleTheme }: { onToggleTheme: () => void }) {
+export function SiteHeader({
+  onToggleTheme,
+  route,
+}: {
+  onToggleTheme: () => void;
+  route: string;
+}) {
   const wallet = useNearWallet();
   const accountId = wallet.signedAccountId;
+  const onData = route === "data";
 
   return (
     <header className="flex flex-col gap-3">
@@ -23,6 +30,11 @@ export function SiteHeader({ onToggleTheme }: { onToggleTheme: () => void }) {
             <ChipDot />
             mainnet
           </Chip>
+          <a
+            href={onData ? "#/" : "#/data"}
+            className="font-mono text-[12px] leading-none text-signal-ink underline decoration-ink-25 underline-offset-[3px] transition duration-[120ms] hover:decoration-signal-ink">
+            {onData ? "staking hub ←" : "node data →"}
+          </a>
           {wallet.loading ? null : accountId ? (
             <AccountChip accountId={accountId} />
           ) : (

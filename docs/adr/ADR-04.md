@@ -45,8 +45,8 @@ backend, a key, or a signature.
 
 The stake/unstake hub gains exactly two additions and nothing else:
 
-- a fourth cell in `~/pool`: **epoch apy** (last epoch's reward,
-  annualized, net of pool fee), labeled `est` because the base stake is
+- a fourth cell in `~/pool`: **apy** (last epoch's reward, annualized,
+  net of pool fee), labeled `est · net of fee` because the base stake is
   derived (below) and the epoch length is an estimate
   (`EPOCH_HOURS_ESTIMATE` in src/config.ts);
 - a collapsed `~/faq` panel below `~/actions` with three disclosures.
@@ -57,9 +57,14 @@ routing (`window.location.hash`), no router dependency, no server
 rewrite. A path route (`/data`) would need a `vercel.json` SPA rewrite;
 that file is frozen per ADR-02 discipline and is not touched.
 
-The hub links to the data view through a dim foot line in `~/pool`
-(`epoch N · full node & network data →`); the data view links back.
-Nothing auto-navigates.
+The two surfaces cross-link prominently, in two places each: a
+route-aware text link in the site header (`node data →` from the hub,
+`staking hub ←` from the data view), and a full-width lead block
+(`LeadLink` in `src/components/ui/LeadLink.tsx`) at the bottom of the
+hub (`node & network data` with a one-line description of what lives
+there) and at the top of the data view (`staking hub`). The `~/pool`
+foot keeps only the epoch line; there is no dim foot link. Nothing
+auto-navigates.
 
 This amends ADR-03 §5 in one direction only: "no validator-health stats
 in the delegator hub" still holds (validator health renders on the data
@@ -74,8 +79,9 @@ divided by `previous epoch's total stake`, annualized at
 The previous stake base is derived: `current total staked balance -
 previous epoch reward`, because the RPC reports the reward of the epoch
 that just ended while `get_total_staked_balance` reports the present.
-Both values are read live; the copy keeps the `est` marker and points to
-the full derivation on the data view. Verified live for epoch 4893:
+Both values are read live; the copy keeps the `est` marker, and the
+`~/node` reward cell on the data view shows the same net estimate
+under the reward figure. Verified live for epoch 4893:
 17.238613 Ⓝ reward on a 432,194.135 Ⓝ base = 4.66% gross,
 4.42% net of the 5% pool fee.
 

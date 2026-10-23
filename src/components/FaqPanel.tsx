@@ -70,8 +70,8 @@ export function FaqPanel() {
         folded into your staked balance automatically by the pool&apos;s
         share accounting. there is no claim transaction; your staked
         balance simply grows. thecoding&apos;s fee is {feeText} rewards,
-        never of your principal. the live estimate is the epoch apy cell
-        in the ~/pool strip above, net of fee.
+        never of your principal. the live estimate is the apy cell in
+        the ~/pool strip above, net of fee.
       </HelpDisclosure>
     </Panel>
   );

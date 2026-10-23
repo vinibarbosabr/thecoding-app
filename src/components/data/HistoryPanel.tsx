@@ -7,7 +7,7 @@ import type { EpochRecord } from "../../lib/epochHistory";
 import { fetchPoolStats } from "../../lib/networkRead";
 import { netFlowYocto, toBig } from "../../lib/metrics";
 import type { FeeFraction } from "../../lib/metrics";
-import { formatNear, formatDeltaYocto } from "../../lib/near";
+import { formatNear, formatNearCompact, formatDeltaYocto } from "../../lib/near";
 
 type Chartable = { label: string; record: EpochRecord }[];
 
@@ -58,6 +58,12 @@ export function HistoryPanel() {
     });
 
   const recent = [...list].slice(-8).reverse();
+  const stakeLabel = (r: EpochRecord | undefined) =>
+    r && r.stake
+      ? `epoch ${r.epoch} · ${formatNearCompact(r.stake)} Ⓝ`
+      : r
+        ? `epoch ${r.epoch}`
+        : "·";
 
   return (
     <Panel
@@ -89,7 +95,7 @@ export function HistoryPanel() {
       ) : (
         <>
           <p className="font-mono text-[11px] leading-none tracking-[0.06em] text-ink-60">
-            epoch apy · net of fee
+            apy per epoch · net of fee
           </p>
           <BarChart
             values={apyValues.filter((v): v is number => v !== null)}
@@ -111,8 +117,8 @@ export function HistoryPanel() {
           </p>
           <LineChart values={stakeValues} ariaLabel="line chart of pool stake per epoch" />
           <ChartCaption
-            left={list.length > 0 ? `epoch ${list[0].epoch}` : "·"}
-            right={list.length > 0 ? `epoch ${list[list.length - 1].epoch}` : "·"}
+            left={stakeLabel(list[0])}
+            right={stakeLabel(list[list.length - 1])}
           >
             <span>{list.length} sampled epochs</span>
           </ChartCaption>
@@ -123,17 +129,17 @@ export function HistoryPanel() {
           <BarChart
             values={flowValues}
             ariaLabel="bar chart of net stake flow per epoch"
-            format={(v) => `${v.toFixed(4)} Ⓝ`}
+            format={(v) => `${v.toFixed(6)} Ⓝ`}
           />
           <ChartCaption
             left={
               flowValues.length > 0
-                ? `min ${Math.min(...flowValues).toFixed(2)} Ⓝ`
+                ? `min ${Math.min(...flowValues).toFixed(6)} Ⓝ`
                 : "·"
             }
             right={
               flowValues.length > 0
-                ? `max ${Math.max(...flowValues).toFixed(2)} Ⓝ`
+                ? `max ${Math.max(...flowValues).toFixed(6)} Ⓝ`
                 : "·"
             }
           />

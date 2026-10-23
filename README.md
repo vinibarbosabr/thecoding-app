@@ -55,7 +55,7 @@ approve. The builders live in [`src/lib/pool.ts`](src/lib/pool.ts).
 - **Six pool writes**, all signed by your wallet: stake, restake,
   unstake, unstake-all, withdraw, withdraw-all.
 - **Position view**: staked, unstaking, and liquid balances plus the
-  pool fee, epoch APY (previous epoch's reward, annualized, net of
+  pool fee, APY (previous epoch's reward, annualized, net of
   fee), and total pool stake, read live from the contract and the
   RPC validator set.
 - **Data view (`app.thecoding.dev/#/data`)**: node health (epoch
@@ -245,7 +245,7 @@ src/
 │   └── *.test.ts
 └── components/
     ├── PositionPanel.tsx    # ~/position: staked / unstaking / liquid
-    ├── PoolStrip.tsx        # ~/pool: fee, total staked, epoch apy, unbonding
+    ├── PoolStrip.tsx        # ~/pool: fee, total staked, apy, unbonding
     ├── JourneyPanel.tsx     # ~/actions: availability-driven writes
     ├── FaqPanel.tsx         # ~/faq: custody, unbonding, rewards
     ├── DataView.tsx          # #/data view

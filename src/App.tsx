@@ -10,6 +10,7 @@ import { JourneyPanel } from "./components/JourneyPanel";
 import { FaqPanel } from "./components/FaqPanel";
 import { DataView } from "./components/DataView";
 import { TxToast } from "./components/TxToast";
+import { LeadLink } from "./components/ui/LeadLink";
 import { usePoolAccount } from "./hooks/usePoolAccount";
 import { useTx } from "./hooks/useTx";
 import { useTheme } from "./hooks/useTheme";
@@ -40,7 +41,7 @@ function Shell() {
     <div className="relative min-h-screen">
       <Backdrop />
       <div className="relative z-10 mx-auto max-w-[672px] px-5 pt-6 max-[520px]:px-4 max-[520px]:pt-[18px]">
-        <SiteHeader onToggleTheme={toggle} />
+        <SiteHeader onToggleTheme={toggle} route={route} />
         <main>
           {showData ? (
             <DataView />
@@ -59,6 +60,11 @@ function Shell() {
                 onSign={tx.sign}
               />
               <FaqPanel />
+              <LeadLink
+                href="#/data"
+                title="node & network data"
+                description="validator uptime, network staking totals, issuance parameters, and epoch history"
+              />
             </>
           )}
         </main>
