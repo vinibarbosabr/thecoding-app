@@ -5,7 +5,16 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.5.1] - 2026-10-23
+
+The research surface: node, network, issuance, and per-epoch history
+land on a read-only `#/data` view, and the epoch charts plot the
+reward-inclusive stake change delegators actually feel. Custody model
+and security posture are unchanged ([ADR-01](docs/adr/ADR-01.md),
+[ADR-02](docs/adr/ADR-02.md)); the data decisions are recorded in
+[ADR-04](docs/adr/ADR-04.md). Shipped in
+[#19](https://github.com/vinibarbosabr/thecoding-app/pull/19) and
+[#20](https://github.com/vinibarbosabr/thecoding-app/pull/20).
 
 ### Added
 
@@ -152,5 +161,6 @@ set as shipped on [app.thecoding.dev](https://app.thecoding.dev).
   path (unused `near-api-js` removed; advisory-affected dev tooling
   upgraded).
 
+[2.5.1]: https://github.com/vinibarbosabr/thecoding-app/releases/tag/v2.5.1
 [2.0.0]: https://github.com/vinibarbosabr/thecoding-app/releases/tag/v2.0.0
 [1.0.0]: https://github.com/vinibarbosabr/thecoding-app/releases/tag/v1.0.0
