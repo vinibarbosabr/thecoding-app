@@ -7,6 +7,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `#/data` view ([ADR-04](docs/adr/ADR-04.md)): live node stats
+  (epoch duties, stake rollover with reward and net-flow split,
+  kickout and slash record), network staking totals (staked sum,
+  staked ratio, validators, supply), protocol issuance parameters
+  with the HSP-029 framing, and per-epoch history charts. All
+  read-only from public RPC, the pool contract, and NearBlocks
+  stats; no backend, no new npm dependencies.
+- Epoch snapshot pipeline: `scripts/data-snapshot.mjs` records one
+  epoch at a time into `public/data/epochs.json` (build-time static
+  data), an hourly GitHub Action maintains one rolling data PR, and
+  the app fetches the file same-origin. Seeded live with epochs
+  4891-4894.
+- APY cell in `~/pool`: previous epoch's reward annualized net
+  of the pool fee, read live from the RPC `validators` method.
+  Labeled `est · net of fee`; the derivation is documented in ADR-04 §2.
+- `~/faq` panel below `~/actions`: custody, unbonding/withdraw, and
+  rewards disclosures, copy fact-checked against NEAR docs and the
+  core-contracts staking pool source.
+
+### Changed
+
+- The hub and `#/data` cross-link prominently: a `LeadLink` block
+  beside the custody note at the top of each surface (the note moves
+  down from the site header into the intro block), plus the
+  `node & network data →` link in the `~/pool` foot.
+- `~/pool` cell `epoch apy` renamed to `apy` (APY is an annualized
+  figure, not a per-epoch one). The four cells sit side by side,
+  value over label: `fee 5.0% / of rewards`, `432.23k Ⓝ / total
+  staked`, `~4.43% / est. apy`, `4 epochs (~30h) / unbonding time`;
+  `total staked` renders compact.
+- `~/actions` lookup intro breaks into two lines: the question, then
+  the read-only explainer.
+- `~/node` reward cell shows the same net APY estimate under the
+  reward figure; the foot line is relabeled `node key · public` so the
+  `ed25519:…` value reads as what it is: the public on-chain consensus
+  key, not secret material.
+- `~/epochs` net-flow chart captions keep 6 decimals (the per-epoch net
+  flow is ~0.0001 Ⓝ, which rounded to `0.00 Ⓝ`); the stake line
+  caption now shows the first and last stake values.
+
 ### Security
 
 - October 2026 threat audit ([docs/security](docs/security/2026-10-22-threat-audit.md)):

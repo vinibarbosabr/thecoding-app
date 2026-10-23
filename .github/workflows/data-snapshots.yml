@@ -1,0 +1,54 @@
+name: data snapshots
+
+on:
+  schedule:
+    - cron: "23 * * * *" # hourly; the epoch is ~7.5h, so every epoch is sampled several times
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: snapshot onto the rolling data branch
+        run: |
+          set -euo pipefail
+          git config user.name "thecoding data bot"
+          git config user.email "actions@users.noreply.github.com"
+          if git fetch origin data/snapshots; then
+            git checkout data/snapshots
+            git merge origin/main --no-edit
+          else
+            git checkout -b data/snapshots
+          fi
+          node scripts/data-snapshot.mjs
+          git add public/data/epochs.json
+          if git diff --cached --quiet; then
+            echo "no snapshot changes"
+            exit 0
+          fi
+          git commit -m "data: epoch snapshot $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          git push origin data/snapshots
+
+      - name: keep one rolling snapshot pr open
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          count=$(gh pr list --repo "$GITHUB_REPOSITORY" --head data/snapshots --state open --json number --jq 'length')
+          if [ "$count" = "0" ]; then
+            gh pr create \
+              --repo "$GITHUB_REPOSITORY" \
+              --base main \
+              --head data/snapshots \
+              --title "data: epoch snapshots" \
+              --body "rolling epoch snapshots for the \#/data view (ADR-04). merge to publish the history; the next run rebases onto main. auto-generated, merge when convenient." || true
+          fi

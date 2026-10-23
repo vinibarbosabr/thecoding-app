@@ -24,6 +24,23 @@ export function formatNear(yocto: string): string {
   });
 }
 
+/** Compact unit for network-scale figures: 592.86m, 1.25b, 432.21k. */
+export function formatNearCompact(yocto: string): string {
+  const n = yoctoToNear(yocto);
+  if (n >= 1e9) return `${(n / 1e9).toFixed(2)}b`;
+  if (n >= 1e6) return `${(n / 1e6).toFixed(2)}m`;
+  if (n >= 1e3) return `${(n / 1e3).toFixed(2)}k`;
+  return formatNear(yocto);
+}
+
+/** Signed delta with the same precision as formatNear: "+17.2386", "-0.3734". */
+export function formatDeltaYocto(yocto: bigint): string {
+  if (yocto === 0n) return "0";
+  const sign = yocto > 0n ? "+" : "-";
+  const abs = (yocto < 0n ? -yocto : yocto).toString();
+  return `${sign}${formatNear(abs)}`;
+}
+
 export function normalizeDecimal(input: string): number {
   const trimmed = input.trim();
   if (!trimmed) return NaN;

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { NearProvider, useNearWallet } from "near-connect-hooks";
 import { NETWORK, RPC_URLS } from "./config";
 import { SiteHeader } from "./components/SiteHeader";
@@ -6,10 +7,15 @@ import { Backdrop } from "./components/Backdrop";
 import { PositionPanel } from "./components/PositionPanel";
 import { PoolStrip } from "./components/PoolStrip";
 import { JourneyPanel } from "./components/JourneyPanel";
+import { FaqPanel } from "./components/FaqPanel";
+import { DataView } from "./components/DataView";
 import { TxToast } from "./components/TxToast";
+import { LeadLink } from "./components/ui/LeadLink";
+import { CustodyNote } from "./components/ui/CustodyNote";
 import { usePoolAccount } from "./hooks/usePoolAccount";
 import { useTx } from "./hooks/useTx";
 import { useTheme } from "./hooks/useTheme";
+import { useHashRoute } from "./hooks/useHashRoute";
 
 export default function App() {
   return (
@@ -25,6 +31,12 @@ function Shell() {
   const position = usePoolAccount();
   const tx = useTx(position.refetch);
   const { toggle } = useTheme();
+  const route = useHashRoute();
+  const showData = route === "data";
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [showData]);
 
   return (
     <div className="relative min-h-screen">
@@ -32,18 +44,33 @@ function Shell() {
       <div className="relative z-10 mx-auto max-w-[672px] px-5 pt-6 max-[520px]:px-4 max-[520px]:pt-[18px]">
         <SiteHeader onToggleTheme={toggle} />
         <main>
-          <PositionPanel
-            position={position}
-            connected={connected}
-            accountId={wallet.signedAccountId ?? null}
-          />
-          <PoolStrip />
-          <JourneyPanel
-            position={position}
-            connected={connected}
-            pending={tx.pending}
-            onSign={tx.sign}
-          />
+          {showData ? (
+            <DataView />
+          ) : (
+            <>
+              <div className="mt-[22px] grid items-center gap-4 [grid-template-columns:minmax(0,1fr)_auto] max-[520px]:grid-cols-1 max-[520px]:gap-3.5">
+                <CustodyNote />
+                <LeadLink
+                  href="#/data"
+                  title="node & network data"
+                  description="uptime, network stats, issuance, epoch history"
+                />
+              </div>
+              <PositionPanel
+                position={position}
+                connected={connected}
+                accountId={wallet.signedAccountId ?? null}
+              />
+              <PoolStrip />
+              <JourneyPanel
+                position={position}
+                connected={connected}
+                pending={tx.pending}
+                onSign={tx.sign}
+              />
+              <FaqPanel />
+            </>
+          )}
         </main>
         <SiteFooter />
       </div>

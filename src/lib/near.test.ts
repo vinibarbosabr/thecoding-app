@@ -1,5 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { nearToYocto, yoctoToNear, normalizeDecimal, formatNear } from "./near";
+import {
+  nearToYocto,
+  yoctoToNear,
+  normalizeDecimal,
+  formatNear,
+  formatNearCompact,
+  formatDeltaYocto,
+} from "./near";
 
 describe("normalizeDecimal", () => {
   it("accepts dot decimal", () => {
@@ -87,5 +94,44 @@ describe("formatNear", () => {
 
   it("formats 0", () => {
     expect(formatNear("0")).toBe("0");
+  });
+});
+
+describe("formatNearCompact", () => {
+  it("formats network-scale staked sums as millions", () => {
+    // live epoch 4894: 592,863,197.1246 near
+    expect(formatNearCompact("592863197124683768986714673190623")).toBe(
+      "592.86m",
+    );
+  });
+
+  it("formats circulating supply as billions", () => {
+    expect(formatNearCompact("1249836992159308065117756741322730")).toBe(
+      "1.25b",
+    );
+  });
+
+  it("formats pool-scale stakes as thousands", () => {
+    expect(formatNearCompact("432211374493686841346346634543")).toBe("432.21k");
+  });
+
+  it("falls back to formatNear below a thousand", () => {
+    expect(formatNearCompact("1500000000000000000000000")).toBe("1.5");
+  });
+});
+
+describe("formatDeltaYocto", () => {
+  it("formats positive and negative deltas", () => {
+    // live 4894 -> 4895 reward delta and net flow
+    expect(formatDeltaYocto(17238613113198740904295785n)).toBe("+17.2386");
+    expect(formatDeltaYocto(373401763187880264555367n)).toBe("+0.3734");
+  });
+
+  it("formats zero without a sign", () => {
+    expect(formatDeltaYocto(0n)).toBe("0");
+  });
+
+  it("formats negatives with a leading minus", () => {
+    expect(formatDeltaYocto(-373401763187880264555367n)).toBe("-0.3734");
   });
 });
