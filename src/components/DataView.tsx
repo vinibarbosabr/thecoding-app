@@ -1,6 +1,7 @@
 import { NodePanel } from "./data/NodePanel";
 import { NetworkPanel } from "./data/NetworkPanel";
 import { HistoryPanel } from "./data/HistoryPanel";
+import { IssuancePanel } from "./data/IssuancePanel";
 
 export function DataView() {
   return (
@@ -24,6 +25,7 @@ export function DataView() {
       <NodePanel />
       <NetworkPanel />
       <HistoryPanel />
+      <IssuancePanel />
     </div>
   );
 }
