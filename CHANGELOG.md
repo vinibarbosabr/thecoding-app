@@ -54,7 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   delegations stack outward from it, so each bar's outer edge is
   the epoch's total change. The table's flow column becomes
   change (reward + delegations) and the caption sums the window:
-  `Σ +52 Ⓝ · largest +17.44 Ⓝ`.
+  `Σ +51.9929 Ⓝ · largest +17.4419 Ⓝ` on the seeded history.
 - All three `~/epochs` charts label their plotted values: the apy
   and stake-change bars carry a value row under the plot (thinned
   to 12 slots as history grows) and the stake line labels its
