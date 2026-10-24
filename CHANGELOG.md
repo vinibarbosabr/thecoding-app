@@ -5,6 +5,25 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Snapshot publishing: the rolling data PR was never created (the
+  repo lacked the GitHub Actions setting *Allow GitHub Actions to
+  create and approve pull requests*, enabled 2026-10-24) and the
+  step hid the failure behind `|| true`, so the `#/data` view kept
+  serving the seeded epochs 4891-4894 while snapshots piled up on
+  `data/snapshots`. The workflow now auto-merges the rolling PR and
+  fails loudly on PR errors ([ADR-05](docs/adr/ADR-05.md)).
+
+### Changed
+
+- Snapshot cadence: hourly → 4 runs per 24h, every 6h at :41 UTC.
+  6h is below the ~7.5h epoch length, so every epoch is still
+  sampled; an epoch lost to a skipped run is recoverable with
+  `node scripts/data-snapshot.mjs --backfill=2`.
+
 ## [2.5.1] - 2026-10-23
 
 The research surface: node, network, issuance, and per-epoch history
