@@ -90,7 +90,7 @@ export function HistoryPanel() {
               ? `recording since epoch ${recordingSince.toLocaleString("en-US")}`
               : "…"}
           </span>
-          <span>snapshots run hourly · github</span>
+          <span>snapshots every 6h · github</span>
         </>
       }
     >
