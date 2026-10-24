@@ -13,7 +13,13 @@ jobs:
   snapshot:
     runs-on: ubuntu-latest
     steps:
+      # full history: the snapshot step merges origin/main into
+      # data/snapshots, which needs a shared merge base. the default
+      # depth-1 clone leaves the two tips without one ("refusing to
+      # merge unrelated histories") as soon as the branches diverge.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
