@@ -199,10 +199,10 @@ the app ([ADR-04](docs/adr/ADR-04.md)):
   and nodes-online figures; failure degrades quietly to RPC-only
   values.
 - **Epoch history** (`public/data/epochs.json`): collected by
-  [`scripts/data-snapshot.mjs`](scripts/data-snapshot.mjs) on an
-  hourly schedule (GitHub Action maintaining one rolling PR), served
-  same-origin as build-time static data. No server ever joins the
-  staking path.
+  [`scripts/data-snapshot.mjs`](scripts/data-snapshot.mjs) 4x/24h
+  (GitHub Action; the rolling PR is auto-merged by the workflow,
+  [ADR-05](docs/adr/ADR-05.md)), served same-origin as build-time
+  static data. No server ever joins the staking path.
 
 Every estimate is labeled (`est`): the epoch APY derives its base
 stake from the current total minus the previous epoch's reward, and

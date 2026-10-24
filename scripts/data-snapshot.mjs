@@ -5,8 +5,8 @@
  *
  * Zero dependencies (node >= 18). Read-only: RPC `validators` +
  * `EXPERIMENTAL_protocol_config`, plus NearBlocks' public stats. Runs
- * hourly in CI (GitHub Action) and locally:
- * `node scripts/data-snapshot.mjs [--backfill N]`.
+ * 4x/24h in CI (GitHub Action, ADR-05) and locally:
+ * `node scripts/data-snapshot.mjs [--backfill=N]`.
  *
  * Record semantics:
  * - `reward` is the reward paid FOR that epoch. It becomes visible in

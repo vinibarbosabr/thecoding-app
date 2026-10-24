@@ -11,6 +11,7 @@ Dated records of decisions that affect how this app talks to
 | [ADR-02](./ADR-02.md) | **Accepted** | Security posture: no key material in the app's trust boundary — no browser-held keys, static-only hosting, scoped CSP (wallet-sandbox compatible; no script-src), minimal signing-path deps |
 | [ADR-03](./ADR-03.md) | **Accepted** | Visual system for the v2 shell: brand tokens, terminal-window panels, availability-driven journey; eth-implicit connect is connector-native (no custom registration code) |
 | [ADR-04](./ADR-04.md) | **Accepted** | Metrics, FAQ, and the `#/data` view: epoch APY cell + `~/faq` in the hub, node/network/issuance data on a hash route, RPC + NearBlocks read-only sources, self-collected epoch snapshots as build-time static data, no new dependencies |
+| [ADR-05](./ADR-05.md) | **Accepted** | Snapshot publishing: 4 runs/24h (every 6h, off-peak minute), rolling PR created and auto-merged by the workflow, loud failures; amends ADR-04 §4 |
 
 ## Adding an ADR
 

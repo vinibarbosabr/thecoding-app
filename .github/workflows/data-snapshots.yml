@@ -2,7 +2,7 @@ name: data snapshots
 
 on:
   schedule:
-    - cron: "23 * * * *" # hourly; the epoch is ~7.5h, so every epoch is sampled several times
+    - cron: "41 1,7,13,19 * * *" # 4x/24h at :41; the epoch is ~7.5h, so every epoch still contains at least one run (ADR-05)
   workflow_dispatch:
 
 permissions:
@@ -38,7 +38,7 @@ jobs:
           git commit -m "data: epoch snapshot $(date -u +%Y-%m-%dT%H:%M:%SZ)"
           git push origin data/snapshots
 
-      - name: keep one rolling snapshot pr open
+      - name: publish the rolling snapshot pr
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -50,5 +50,6 @@ jobs:
               --base main \
               --head data/snapshots \
               --title "data: epoch snapshots" \
-              --body "rolling epoch snapshots for the \#/data view (ADR-04). merge to publish the history; the next run rebases onto main. auto-generated, merge when convenient." || true
+              --body "rolling epoch snapshots for the #/data view (ADR-04 §4, ADR-05). created and auto-merged by the workflow; each run publishes the freshest epochs to main."
           fi
+          gh pr merge --repo "$GITHUB_REPOSITORY" --merge data/snapshots
