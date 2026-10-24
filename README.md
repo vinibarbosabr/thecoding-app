@@ -217,7 +217,7 @@ config are the sources of truth.
 | --- | --- |
 | UI | Vite + React + TypeScript + Tailwind CSS |
 | Wallet | [NEAR Connect](https://docs.near.org/tools/near-connect) (`@hot-labs/near-connect`, `near-connect-hooks`) |
-| Tests | Vitest (115 tests across `src/lib` and `src/hooks`) |
+| Tests | Vitest (123 tests across `src/lib` and `src/hooks`) |
 | Host | Static site (Vercel) — no server in the staking path |
 | License | MIT |
 
@@ -269,6 +269,7 @@ docs/
 - [ADR-02](docs/adr/ADR-02.md) — security posture
 - [ADR-03](docs/adr/ADR-03.md) — visual system for the v2 shell
 - [ADR-04](docs/adr/ADR-04.md) — metrics, FAQ, and the `#/data` view
+- [ADR-05](docs/adr/ADR-05.md) — automatic snapshot publishing and cadence
 
 ---
 

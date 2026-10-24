@@ -29,6 +29,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   6h is below the ~7.5h epoch length, so every epoch is still
   sampled; an epoch lost to a skipped run is recoverable with
   `node scripts/data-snapshot.mjs --backfill=2`.
+- Public docs caught up with the shipped pipeline: README lists
+  ADR-05 and the current test count, CONTRIBUTING's CI status,
+  repository layout, and test snapshot reflect the v2 components,
+  and ADR-04 carries its ADR-05 amendment note.
 
 ## [2.5.1] - 2026-10-23
 

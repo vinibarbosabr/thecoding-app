@@ -36,21 +36,22 @@ configure.
 
 ```text
 src/
-├── App.tsx                  # NearProvider (mainnet) + page wiring
+├── App.tsx                  # NearProvider (mainnet) + hash routing + shell
 ├── config.ts                # pool id, RPC endpoints, gas, buffers
 ├── lib/
 │   ├── near.ts              # NEAR ↔ yoctoNEAR, decimal parsing, formatting
 │   ├── pool.ts              # the six write builders + contract reads
+│   ├── poolRead.ts          # public view calls (RPC fallback walk)
 │   └── *.test.ts            # vitest, colocated
 ├── hooks/
 │   ├── usePoolAccount.ts    # balances, fee, max stake (0.05 NEAR buffer)
 │   ├── useTx.ts             # sign + send, pending/error/success states
-│   ├── useTheme.ts          # light/dark toggle
 │   └── *.test.ts
 └── components/
-    ├── ConnectBar.tsx       # connect / disconnect, signed-in account
-    ├── PositionCard.tsx     # staked / unstaking / liquid buckets
-    ├── AmountForm.tsx       # amount input, Max, validation
+    ├── PositionPanel.tsx    # ~/position: staked / unstaking / liquid
+    ├── PoolStrip.tsx        # ~/pool: fee, total staked, apy, unbonding
+    ├── JourneyPanel.tsx     # ~/actions: amount input, Max, writes
+    ├── DataView.tsx         # #/data view (+ data/ panels)
     └── TxToast.tsx          # toast with NearBlocks transaction link
 docs/
 └── adr/                     # architecture decision records
@@ -58,8 +59,12 @@ docs/
 
 ## Dev workflow
 
-- **No CI workflows or PR templates exist in this repo** (no
-  `.github/` directory). Commit history uses Conventional Commits
+- CI is one scheduled workflow, [data snapshots](.github/workflows/data-snapshots.yml)
+  ([ADR-05](docs/adr/ADR-05.md)): it records epoch history into
+  `public/data/epochs.json` and auto-merges the rolling data PR.
+  No PR templates exist. Never hand-edit `epochs.json`;
+  `npm run data:snapshot` regenerates it locally (read-only RPC).
+- Commit history uses Conventional Commits
   (`feat:`, `fix:`, `docs:`, `chore:`); please keep that style.
 - Work on a topic branch, open a PR against `main`.
 - The app talks to **NEAR mainnet only** (`NETWORK` in
@@ -74,14 +79,14 @@ npm test        # vitest run, single pass
 npm run test:watch
 ```
 
-Current state: 32 tests in 3 files, all colocated with the module
-they test (`src/lib/near.test.ts`, `src/lib/pool.test.ts`,
-`src/hooks/usePoolAccount.test.ts`). Real output from `npm test` on
-Node v26.7.0:
+Current state: 123 tests in 11 files, all colocated with the module
+they test (for example `src/lib/near.test.ts`, `src/lib/pool.test.ts`,
+`src/lib/epochHistory.test.ts`, `src/hooks/usePoolAccount.test.ts`).
+Real output from `npm test`:
 
 ```text
- Test Files  3 passed (3)
-      Tests  32 passed (32)
+ Test Files  11 passed (11)
+      Tests  123 passed (123)
 ```
 
 To add tests, create `foo.test.ts` next to `foo.ts` and import from
@@ -97,11 +102,11 @@ builder needs the same assertions.
   receiver, gas, and deposit), then add builder tests mirroring
   `pool.test.ts`.
 - **Add a contract read**: copy a view helper in
-  [`src/lib/pool.ts`](src/lib/pool.ts) (for example `get_account`),
+  [`src/lib/poolRead.ts`](src/lib/poolRead.ts) (the RPC fallback walk),
   wire it through [`src/hooks/usePoolAccount.ts`](src/hooks/usePoolAccount.ts),
-  render in [`src/components/PositionCard.tsx`](src/components/PositionCard.tsx).
-- **Add a UI control**: copy [`AmountForm.tsx`](src/components/AmountForm.tsx)
-  (validation, Max button, comma-decimal handling come with it).
+  render in [`src/components/PositionPanel.tsx`](src/components/PositionPanel.tsx).
+- **Add a UI control**: copy [`JourneyPanel.tsx`](src/components/JourneyPanel.tsx)
+  (amount validation, Max button, comma-decimal handling live there).
 
 ## Hard rules
 

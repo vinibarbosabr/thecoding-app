@@ -67,3 +67,6 @@ same change set. Read both before touching the staking path.
   public files. Public architecture lives in `docs/adr/` + root `README.md`.
 - Contract constants (pool id, RPC list, gas, buffers) live in `src/config.ts`
   — change them there, not inline.
+- `public/data/epochs.json` is machine-written by `scripts/data-snapshot.mjs`
+  in CI (ADR-05): never hand-edit it; the workflow opens and merges the
+  rolling `data/snapshots` PR on its own.

@@ -138,6 +138,14 @@ ADR-02 invariant. The metrics path is read-only and cannot gate or
 alter a money movement. `vercel.json` is untouched (CSP already allows
 these connects: it has no `connect-src` / `default-src`).
 
+### 8. Amendment (2026-10-24, ADR-05): cadence and automatic publishing
+
+§4, two changes: the scheduled runs are 4x/24h (every 6h at :41)
+instead of hourly, and the rolling `data/snapshots` PR is created
+and merged by the workflow itself instead of waiting for a manual
+merge. Publishing is automatic and PR failures fail the run loudly;
+see [ADR-05](./ADR-05.md) for the cadence math and the reasoning.
+
 ## Consequences
 
 - `api.nearblocks.io` enters the runtime read perimeter. If it
