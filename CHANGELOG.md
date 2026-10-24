@@ -16,6 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   serving the seeded epochs 4891-4894 while snapshots piled up on
   `data/snapshots`. The workflow now auto-merges the rolling PR and
   fails loudly on PR errors ([ADR-05](docs/adr/ADR-05.md)).
+- Snapshot workflow: `actions/checkout`'s default depth-1 clone left
+  `main` and `data/snapshots` without a shared merge base in the
+  runner, so the in-run `git merge origin/main` failed with
+  `refusing to merge unrelated histories` once the branches diverged
+  (the steady state after the first rolling PR merges). The checkout
+  now fetches full history.
 
 ### Changed
 
