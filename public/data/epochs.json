@@ -612,6 +612,24 @@
       "networkTotalStaked": "591717249437555047818030809996432",
       "networkValidators": 376,
       "circulatingSupply": "1249836992159308065117756741322730"
+    },
+    {
+      "epoch": 4929,
+      "startHeight": 222753137,
+      "final": false,
+      "sampledAt": "2026-11-02T22:27:36.079Z",
+      "stake": "473874318778644298775724936626",
+      "nextStake": "473892646138922033292084588470",
+      "reward": null,
+      "endorsementsExpected": 28269,
+      "endorsementsProduced": 28153,
+      "blocksExpected": 0,
+      "blocksProduced": 0,
+      "chunksExpected": 0,
+      "chunksProduced": 0,
+      "networkTotalStaked": "593763011675114203985077341940589",
+      "networkValidators": 374,
+      "circulatingSupply": "1249836992159308065117756741322730"
     }
   ]
 }
