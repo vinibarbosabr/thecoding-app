@@ -1552,13 +1552,13 @@
     {
       "epoch": 5016,
       "startHeight": 226511537,
-      "final": false,
+      "final": true,
       "sampledAt": "2026-11-27T22:18:44.347Z",
       "stake": "440805542357933313630083796844",
       "nextStake": "440822860275581555751820187029",
-      "reward": null,
-      "endorsementsExpected": 4774,
-      "endorsementsProduced": 4733,
+      "reward": "17317917648242121736390185",
+      "endorsementsExpected": 43198,
+      "endorsementsProduced": 42904,
       "blocksExpected": 0,
       "blocksProduced": 0,
       "chunksExpected": 0,
@@ -1566,6 +1566,24 @@
       "networkTotalStaked": "596230639533231305461555682399774",
       "networkValidators": 342,
       "circulatingSupply": "1312883105987770001667351879872822"
+    },
+    {
+      "epoch": 5017,
+      "startHeight": 226554737,
+      "final": false,
+      "sampledAt": "2026-11-28T09:24:58.656Z",
+      "stake": "440822860275581555751820187029",
+      "nextStake": "440839926084602879832067984929",
+      "reward": null,
+      "endorsementsExpected": 32118,
+      "endorsementsProduced": 32006,
+      "blocksExpected": 0,
+      "blocksProduced": 0,
+      "chunksExpected": 0,
+      "chunksProduced": 0,
+      "networkTotalStaked": "596234462855901783868754408314971",
+      "networkValidators": 344,
+      "circulatingSupply": "1312908470103398702644075138968181"
     }
   ]
 }
